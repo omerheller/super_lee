@@ -36,7 +36,6 @@ public class EmployeeMenu {
                 break;
             default:
                 System.out.println("Try again..");
-                //asdsadad
         }
     }
 
