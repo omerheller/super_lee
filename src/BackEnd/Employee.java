@@ -50,8 +50,8 @@ public class Employee {
         return roles;
     }
 
-    public Date getDateOfHire() {
-        return dateOfHire;
+    public String getDateOfHire() {
+        return dateOfHire.toString();
     }
 
     public String getContract() {
