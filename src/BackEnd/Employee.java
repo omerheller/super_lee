@@ -1,11 +1,9 @@
 package BackEnd;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Vector;
 
-/**
- * Created by omer on 18/04/16.
- */
 public class Employee {
 
 
@@ -13,13 +11,16 @@ public class Employee {
     private String firstName;
     private String lastName;
     private int id;
+    //ADDED BANKACCT
+    private String bankAcct;
     private Vector<Role> roles;
-    private Date dateOfHire;
+    //CHANGED TYPE FROM DATE TO LOCALDATE
+    private LocalDate dateOfHire;
     private String contract;
     private int[][]  availability = new int[2][7];
 
 
-    public Employee(String firstName, String lastName, int id, Vector<Role> roles, Date dateOfHire, String contract, int[][] ava){
+    public Employee(String firstName, String lastName, int id, Vector<Role> roles, LocalDate dateOfHire, String contract, String bankAcct, int[][] ava){
 
         this.firstName = firstName;
         this.lastName = lastName;
@@ -27,6 +28,7 @@ public class Employee {
         this.roles = roles;
         this.dateOfHire = dateOfHire;
         this.contract = contract;
+        this.bankAcct = bankAcct;
         availability = ava;
     }
 
@@ -50,12 +52,16 @@ public class Employee {
         return roles;
     }
 
-    public Date getDateOfHire() {
+    public LocalDate getDateOfHire() {
         return dateOfHire;
     }
 
     public String getContract() {
         return contract;
+    }
+
+    public String getBankAcct() {
+        return bankAcct;
     }
 
     public void addRole(Role role){

@@ -109,7 +109,7 @@ public class SQLiteDAL implements IDAL{
 
     private boolean connected() {
         //boolean initialize = SQLiteJDBCLoader.initialize();
-        dataSource.setUrl("jdbc:sqlite:/home/omer/IdeaProjects/super_lee/superlee");
+        dataSource.setUrl("jdbc:sqlite:C:/Users/matan/IdeaProjects/super_lee/superlee");
        /* int i = 0;
         try {
             ResultSet executeQuery = dataSource.getConnection()
