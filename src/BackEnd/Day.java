@@ -24,7 +24,7 @@ public class Day {
         return eveningShift;
     }
 
-    public Date getDate() {
-        return date;
+    public String getDate() {
+        return date.toString();
     }
 }
