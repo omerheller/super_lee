@@ -43,12 +43,16 @@ public class SQLiteDAL implements IDAL{
     public boolean insert(Employee emp) {
         try {
             //insert new emp
-            stat.execute("INSERT INTO Employees VALUES (" + emp.getId() + ","
-                                + "'"+emp.getFirstName()+"'"+ ","
-                                + "'"+emp.getLastName()+"'"+","
-                                + null
-                                +"'"+emp.getDateOfHire().toString()+"'"+","
-                                +"'"+emp.getContract()+"'"+ "," + 0 + ");");
+            String sql = "INSERT INTO Employees VALUES (?,?,?,?,?,?,?)";
+            PreparedStatement preStat = db.prepareStatement(sql);
+            preStat.setInt(1,emp.getId());
+            preStat.setString(2,emp.getFirstName());
+            preStat.setString(3,emp.getLastName());
+            preStat.setString(4,emp.getContract());
+            preStat.setString(5,emp.getDateOfHire().toString());
+            preStat.setString(6,emp.getBankAccount());
+            preStat.setInt(7,0);
+            preStat.executeUpdate();
             for(Role r: emp.getRoles()){
                 addRole(r.getID(), emp.getId());
             }
