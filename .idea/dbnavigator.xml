@@ -16,7 +16,7 @@
       <scope value="GLOBAL" />
       <destination value="FILE" />
       <format value="EXCEL" />
-      <charset value="UTF-8" />
+      <charset value="windows-1252" />
     </export-instructions>
   </component>
   <component name="DBNavigator.Project.DatabaseBrowserManager">
@@ -24,7 +24,7 @@
     <autoscroll-from-editor value="true" />
     <show-object-properties value="true" />
     <loaded-nodes>
-      <connection connection-id="1a25cde7-426c-4159-ab5f-b3e5704acbac">
+      <connection connection-id="57d3a59d-8b63-4857-9ec4-05d44b063136">
         <schema name="main" object-types="column, constraint, index, table, dataset trigger, view" />
       </connection>
     </loaded-nodes>
@@ -33,13 +33,14 @@
     <connection id="f37f0fa2-7eac-4ae0-9e3e-9e2ca2557be6">
       <console name="Connection" type="STANDARD"><![CDATA[SELECT * FROM Employee]]></console>
     </connection>
-    <connection id="1a25cde7-426c-4159-ab5f-b3e5704acbac">
-      <console name="super lee" type="STANDARD" />
+    <connection id="57d3a59d-8b63-4857-9ec4-05d44b063136">
+      <console name="Connection 1" type="STANDARD"><![CDATA[SELECT * FROM EmployeeAvailability]]></console>
     </connection>
   </component>
   <component name="DBNavigator.Project.DatasetFilterManager">
-    <filter-list connection-id="1a25cde7-426c-4159-ab5f-b3e5704acbac" dataset="main.Employees" active-filter-id="EMPTY_FILTER" />
-    <filter-list connection-id="1a25cde7-426c-4159-ab5f-b3e5704acbac" dataset="main.Shifts" active-filter-id="EMPTY_FILTER" />
+    <filter-list connection-id="57d3a59d-8b63-4857-9ec4-05d44b063136" dataset="main.Employees" active-filter-id="EMPTY_FILTER" />
+    <filter-list connection-id="57d3a59d-8b63-4857-9ec4-05d44b063136" dataset="main.RolesOfShifts" active-filter-id="EMPTY_FILTER" />
+    <filter-list connection-id="57d3a59d-8b63-4857-9ec4-05d44b063136" dataset="main.Day" active-filter-id="EMPTY_FILTER" />
   </component>
   <component name="DBNavigator.Project.EditorStateManager">
     <last-used-providers />
@@ -141,9 +142,9 @@
           <object-name-filters />
         </object-filters>
       </connection>
-      <connection id="1a25cde7-426c-4159-ab5f-b3e5704acbac" active="true">
+      <connection id="57d3a59d-8b63-4857-9ec4-05d44b063136" active="true">
         <database>
-          <name value="super lee" />
+          <name value="Connection 1" />
           <description value="" />
           <database-type value="SQLITE" />
           <config-type value="BASIC" />
@@ -156,7 +157,7 @@
           <port value="" />
           <database value="" />
           <files>
-            <file path="$PROJECT_DIR$/superlee" schema="main" />
+            <file path="C:\Users\matan\IdeaProjects\super_lee\superlee" schema="main" />
           </files>
           <os-authentication value="false" />
           <empty-password value="false" />
