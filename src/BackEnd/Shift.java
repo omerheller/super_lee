@@ -16,8 +16,10 @@ public class Shift {
     private Date date;
     private Employee manager;
     private Vector<Pair>roles;
+    private HashMap<Integer,Integer> amountOfRoles;
 
-    public Shift(int ID, Date startTime, Date endTime, int duration, Date date, Employee manager, Vector<Pair> roles) {
+    public Shift(int ID, Date startTime, Date endTime, int duration,
+                 Date date, Employee manager, Vector<Pair> roles, HashMap<Integer,Integer> amountOfRoles) {
         this.ID = ID;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -25,26 +27,27 @@ public class Shift {
         this.date = date;
         this.manager = manager;
         this.roles = roles;
+        this.amountOfRoles = amountOfRoles;
     }
 
     public int getID(){
         return ID;
     }
 
-    public Date getStartTime() {
-        return startTime;
+    public String getStartTime() {
+        return startTime.toString();
     }
 
-    public Date getEndTime() {
-        return endTime;
+    public String getEndTime() {
+        return endTime.toString();
     }
 
     public int getDuration() {
         return duration;
     }
 
-    public Date getDate() {
-        return date;
+    public String getDate() {
+        return date.toString();
     }
 
     public Employee getManager() {
@@ -53,6 +56,10 @@ public class Shift {
 
     public Vector<Pair> getRoles() {
         return roles;
+    }
+
+    public HashMap<Integer,Integer> getAmountOfRoles(){
+        return amountOfRoles;
     }
 
     public void addRole(Role role){
