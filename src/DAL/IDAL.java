@@ -2,7 +2,11 @@ package DAL;
 
 import BackEnd.*;
 
+import java.sql.Time;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
+import java.util.Vector;
 
 
 /**
@@ -19,5 +23,10 @@ public interface IDAL {
     public boolean delete(Day day);
     public boolean update(Day day);
     public boolean addRole(int roleID, int empID);
-    public List<Role> getRoles();
+    Day getDay(LocalDateTime d);
+    Shift getShift(int id);
+    Employee getEmployee(int id);
+    Role getRole(int id);
+    Vector<Role> getRoles();
+    Vector<Employee> getEmployees();
 }

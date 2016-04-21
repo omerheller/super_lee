@@ -1,25 +1,27 @@
 package BackEnd;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Vector;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 /**
  * Created by omer on 18/04/16.
  */
 public class Shift {
     private int ID;
-    private Date startTime;
-    private Date endTime;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
     private int duration;
-    private Date date;
+    private LocalDate date;
     private Employee manager;
     private Vector<Pair>roles;
     private HashMap<Integer,Integer> amountOfRoles;
+    private static DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ENGLISH);
+    private static DateTimeFormatter formatterTime = DateTimeFormatter.ofPattern("HH:mm", Locale.ENGLISH);
 
-    public Shift(int ID, Date startTime, Date endTime, int duration,
-                 Date date, Employee manager, Vector<Pair> roles, HashMap<Integer,Integer> amountOfRoles) {
+    public Shift(int ID, LocalDateTime startTime, LocalDateTime endTime, int duration,
+                 LocalDate date, Employee manager, Vector<Pair> roles, HashMap<Integer,Integer> amountOfRoles) {
         this.ID = ID;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -28,6 +30,7 @@ public class Shift {
         this.manager = manager;
         this.roles = roles;
         this.amountOfRoles = amountOfRoles;
+
     }
 
     public int getID(){
@@ -35,11 +38,11 @@ public class Shift {
     }
 
     public String getStartTime() {
-        return startTime.toString();
+        return startTime.format(formatterTime);
     }
 
     public String getEndTime() {
-        return endTime.toString();
+        return endTime.format(formatterTime);
     }
 
     public int getDuration() {
@@ -47,7 +50,7 @@ public class Shift {
     }
 
     public String getDate() {
-        return date.toString();
+        return date.format(formatterDate);
     }
 
     public Employee getManager() {

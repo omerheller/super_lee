@@ -1,14 +1,10 @@
 package DAL;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.PreparedStatement;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
-import java.util.ListIterator;
+import java.sql.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.Date;
 
 
 import BackEnd.*;
@@ -20,6 +16,8 @@ public class SQLiteDAL implements IDAL{
     private SQLiteDataSource dataSource;
     private Connection db;
     private Statement stat;
+    private static DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ENGLISH);
+    private static DateTimeFormatter formatterTime = DateTimeFormatter.ofPattern("HH:mm", Locale.ENGLISH);
     public SQLiteDAL(){
         dataSource = new SQLiteDataSource();
         connected();
@@ -47,6 +45,163 @@ public class SQLiteDAL implements IDAL{
         }
     }
 
+    @Override
+    public Day getDay(LocalDateTime d) {
+        ResultSet set = getListByID("Days","Date",d.toString());
+        try{
+            int morningShiftID = set.getInt("MorningShift");
+            int eveningShiftID = set.getInt("EveningShift");
+            set.close();
+            stat.close();
+            Shift morningShift = getShift(morningShiftID);
+            Shift eveningShift = getShift(eveningShiftID);
+            return new Day(morningShift,eveningShift,d);
+        }
+        catch(SQLException e){
+            return null;
+        }
+
+    }
+
+    @Override
+    public Shift getShift(int id) {
+        String value = Integer.toString(id);
+        ResultSet set = getListByID("Shift","ID",value);
+        try{
+            int duration = set.getInt("Duration");
+            LocalDateTime startTime = LocalDateTime.parse(set.getString("StartTime"),formatterTime);
+            LocalDateTime endTime = LocalDateTime.parse(set.getString("EndTime"),formatterTime);
+            LocalDateTime date = LocalDateTime.parse(set.getString("Date"),formatterDate);
+            int managerID = set.getInt("ManagerID");
+            set.close();
+            stat.close();
+            Employee manager = getEmployee(managerID);
+            HashMap<Integer,Integer> map = getRolesOfShift(id);
+            Vector<Pair> roles = getEmployeesOfShift(id);
+            return new Shift(id,startTime,endTime,duration,date,manager,roles, map);
+        }
+        catch (SQLException e){
+            return null;
+        }
+    }
+
+    private HashMap<Integer,Integer> getRolesOfShift(int id){
+        HashMap<Integer,Integer> map = new HashMap<>();
+        try {
+            ResultSet set = stat.executeQuery("SELECT * FROM RolesOfShifts WHERE ShiftID=" + id);
+            while(set.next()){
+                map.put(set.getInt("RoleID"),set.getInt("Amount"));
+            }
+            set.close();
+            stat.close();
+            return map;
+        }
+        catch (SQLException e){
+            return map;
+        }
+    }
+
+    private Vector<Pair> getEmployeesOfShift(int id){
+        HashMap<Integer,Integer> map = new HashMap<>();
+        Vector<Pair> vec = new Vector<>();
+        try {
+            ResultSet set = stat.executeQuery("SELECT * FROM EmployeesInShifts WHERE ShiftID=" + id);
+            while(set.next()){
+                map.put(set.getInt("EmployeeID"),set.getInt("RoleID"));
+            }
+            set.close();
+            stat.close();
+            Set<Integer> keys = map.keySet();
+
+            for(int key: keys){
+                Employee emp = getEmployee(key);
+                Role role = getRole(map.get(key));
+                Pair pair = new Pair(role,emp);
+                vec.add(pair);
+            }
+        }
+        catch (SQLException e){
+
+        }
+        return vec;
+    }
+    @Override
+    public Employee getEmployee(int id) {
+        try{
+            ResultSet set = getListByID("Employees","ID",Integer.toString(id));
+            String firstName = set.getString("FirstName");
+            String lastName = set.getString("LastName");
+            String contract = set.getString("Contract");
+            LocalDateTime dateOfHire = LocalDateTime.parse(set.getString("DateOfHire"),formatterDate);
+            String bankAccount = set.getString("BankAccount");
+            set.close();
+            stat.close();
+            Vector<Role> roles = getEmployeeRoles(id);
+            int[][] availability = getAvailability(id);
+            Employee emp = new Employee(firstName,lastName,
+                    id,roles,dateOfHire,contract,bankAccount,availability);
+            return emp;
+        }
+        catch (SQLException e){
+
+        }
+        return null;
+    }
+
+    private int[][] getAvailability(int id){
+        int[][] array = new int[2][7];
+        try {
+            ResultSet set = getListByID("EmployeeAvailability", "EmployeeID", Integer.toString(id));
+            int counter = 2;
+            for(int i=0;i<7;i++){
+                for(int j=0;j<2;j++){
+                    array[i][j] = set.getInt(counter);
+                    counter++;
+                }
+            }
+            set.close();
+            stat.close();
+        }
+        catch (SQLException e){
+
+        }
+        return array;
+    }
+
+    private Vector<Role> getEmployeeRoles(int id){
+        Vector<Role> vec = new Vector<>();
+        Vector<Integer> roleIDs = new Vector<>();
+        try {
+            ResultSet set = stat.executeQuery("SELECT * FROM RolesOfEmployees WHERE EmployeeID=" + id);
+            while (set.next()) {
+                roleIDs.add(set.getInt("RoleID"));
+            }
+            set.close();
+            stat.close();
+            for(Integer roleID: roleIDs){
+                Role role = getRole(roleID);
+                vec.add(role);
+            }
+        }
+        catch (SQLException e){
+
+        }
+        return vec;
+    }
+
+    @Override
+    public Role getRole(int id) {
+        try{
+            ResultSet set = getListByID("Roles","ID",Integer.toString(id));
+            Role role = new Role(set.getInt("ID"),set.getString("Name"));
+            set.close();
+            stat.close();
+            return role;
+        }
+        catch (SQLException e){
+            return null;
+        }
+    }
 
 
     @Override
@@ -178,12 +333,13 @@ public class SQLiteDAL implements IDAL{
         preStat.close();
     }
     private void insertEmployeesOfShifts(Shift shift) throws SQLException{
-        String sql = "INSERT INTO EmployeesInShifts VALUES (?,?)";
+        String sql = "INSERT INTO EmployeesInShifts VALUES (?,?,?)";
         PreparedStatement preStat = db.prepareStatement(sql);
         for(Pair p: shift.getRoles()){
             if(p.getEmployee()!=null){
-                preStat.setInt(1,shift.getID());
-                preStat.setInt(2,p.getEmployee().getId());
+                preStat.setInt(2,shift.getID());
+                preStat.setInt(1,p.getEmployee().getId());
+                preStat.setInt(3,p.getRole().getID());
                 preStat.executeUpdate();
                 preStat.clearParameters();
             }
@@ -247,7 +403,7 @@ public class SQLiteDAL implements IDAL{
                                "WHERE ShiftID="+shift.getID());
             stat.close();
             insertRolesOfShifts(shift);
-            stat = db.createStatement()
+            stat = db.createStatement();
             stat.executeUpdate("DELETE FROM EmployeesInShifts" +
                     "WHERE ShiftID="+shift.getID());
             stat.close();
@@ -350,8 +506,8 @@ public class SQLiteDAL implements IDAL{
         return true;
 
     }
-    public List<Role> getRoles(){
-        List<Role> list = new Vector<Role>();
+    public Vector<Role> getRoles(){
+        Vector<Role> list = new Vector<Role>();
         try {
 
             ResultSet set = getListByID("Roles", null, null);
@@ -369,6 +525,11 @@ public class SQLiteDAL implements IDAL{
             System.out.println(e);
         }
         return list;
+    }
+
+    @Override
+    public Vector<Employee> getEmployees() {
+        return null;
     }
 
     private ResultSet getListByID(String table,String attribute,String value){

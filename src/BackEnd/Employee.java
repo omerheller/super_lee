@@ -1,7 +1,10 @@
 package BackEnd;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Vector;
 
 public class Employee {
@@ -17,7 +20,9 @@ public class Employee {
     //CHANGED TYPE FROM DATE TO LOCALDATE
     private LocalDate dateOfHire;
     private String contract;
-    private int[][]  availability = new int[2][7];
+    private int[][]  availability = new int[7][2];
+    private static DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ENGLISH);
+    private static DateTimeFormatter formatterTime = DateTimeFormatter.ofPattern("HH:mm", Locale.ENGLISH);
 
 
     public Employee(String firstName, String lastName, int id, Vector<Role> roles, LocalDate dateOfHire, String contract, String bankAcct, int[][] ava){
@@ -52,8 +57,8 @@ public class Employee {
         return roles;
     }
 
-    public LocalDate getDateOfHire() {
-        return dateOfHire;
+    public String getDateOfHire() {
+        return dateOfHire.format(formatterDate);
     }
 
     public String getContract() {

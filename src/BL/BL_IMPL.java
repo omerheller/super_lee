@@ -9,6 +9,7 @@ import DAL.SQLiteDAL;
 
 import java.sql.Time;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
@@ -20,7 +21,7 @@ public class BL_IMPL implements IBL {
     private static IDAL SQLDAL = new SQLiteDAL();
 
     @Override
-    public boolean insertEmployee(String firstName, String lastName, int id, Vector<Role> roles, LocalDate dateOfHire, String contract, String bankAcct, int[][] ava) {
+    public boolean insertEmployee(String firstName, String lastName, int id, Vector<Role> roles, LocalDateTime dateOfHire, String contract, String bankAcct, int[][] ava) {
         /*check validity*/
 
         //create emp
@@ -31,7 +32,7 @@ public class BL_IMPL implements IBL {
     }
 
     @Override
-    public boolean updateEmployee(String firstName, String lastName, int id, Vector<Role> roles, LocalDate dateOfHire, String contract, String bankAcct, int[][] ava) {
+    public boolean updateEmployee(String firstName, String lastName, int id, Vector<Role> roles, LocalDateTime dateOfHire, String contract, String bankAcct, int[][] ava) {
         Employee emp = new Employee(firstName, lastName, id, roles, dateOfHire, contract, bankAcct, ava);
 
         return SQLDAL.update(emp);
@@ -74,11 +75,12 @@ public class BL_IMPL implements IBL {
 
     @Override
     public boolean insertRole(String name) {
+        //return SQLDAL.addRole(name);
         return false;
     }
 
     @Override
-    public boolean updateRole(String name) {
+    public boolean updateRole(int id, String name) {
         return false;
     }
 
@@ -108,13 +110,17 @@ public class BL_IMPL implements IBL {
     }
 
     @Override
-    public List<Role> getRoles() {
-
-        return SQLDAL.getRoles();
+    public Vector<Role> getRoles() {
+        return null;
     }
 
     @Override
-    public List<Employee> getEmployees() {
+    public Vector<Employee> getEmployees() {
+        return null;
+    }
+
+    @Override
+    public Vector<Employee> getAvailableEmployees(int[][] avail) {
         return null;
     }
 
