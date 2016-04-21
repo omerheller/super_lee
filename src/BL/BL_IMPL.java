@@ -109,7 +109,8 @@ public class BL_IMPL implements IBL {
 
     @Override
     public List<Role> getRoles() {
-        return null;
+
+        return SQLDAL.getRoles();
     }
 
     @Override

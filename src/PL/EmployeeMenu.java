@@ -32,9 +32,10 @@ public class EmployeeMenu {
         }
 
         //TEST//
-        rolesDictionary.put(1,new Role(1,"cashier"));
-        rolesDictionary.put(2, new Role(2,"manager"));
-        rolesDictionary.put(3,new Role(3, "driver"));
+        List<Role> roles = bl_impl.getRoles();
+        for (Role role: roles){
+            rolesDictionary.put(role.getID(),role);
+        }
 
         /*initialize days strings*/
         days[0][0]="Sunday Morning:"; days[1][0]="Sunday Evening:";

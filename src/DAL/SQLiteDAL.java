@@ -4,9 +4,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
+import java.util.ListIterator;
 
 
 import BackEnd.*;
+import org.omg.Messaging.SyncScopeHelper;
 import org.sqlite.SQLiteDataSource;
 
 public class SQLiteDAL implements IDAL{
@@ -19,7 +25,7 @@ public class SQLiteDAL implements IDAL{
         connected();
         try {
             db = dataSource.getConnection();
-            stat = db.createStatement();
+
         }
         catch (Exception e){
         }
@@ -30,9 +36,13 @@ public class SQLiteDAL implements IDAL{
         try{
             String sql = "INSERT INTO RolesOfEmployees " +
                     "VALUES ("+roleID+","+empID+")";
-            return stat.executeUpdate(sql)==1;
+            stat = db.createStatement();
+            int rows = stat.executeUpdate(sql);
+            stat.close();
+            return rows==1;
         }
         catch(Exception e){
+            System.out.println(e);
             return false;
         }
     }
@@ -50,14 +60,17 @@ public class SQLiteDAL implements IDAL{
             preStat.setString(3,emp.getLastName());
             preStat.setString(4,emp.getContract());
             preStat.setString(5,emp.getDateOfHire().toString());
-            preStat.setString(6,emp.getBankAccount());
+            preStat.setString(6,emp.getBankAcct());
             preStat.setInt(7,0);
             preStat.executeUpdate();
+            preStat.close();
             for(Role r: emp.getRoles()){
                 addRole(r.getID(), emp.getId());
             }
+            employeeAvailability(emp);
         }
         catch(Exception e){
+            System.out.print("insert employee");
             System.out.print(e);
             return false;
         }
@@ -77,9 +90,12 @@ public class SQLiteDAL implements IDAL{
                     counter++;
                 }
             }
-            return preparedStatement.executeUpdate()==1;
+            int rows = preparedStatement.executeUpdate();
+            preparedStatement.close();
+            return rows==1;
         }
         catch (SQLException e){
+            System.out.println(e);
             return false;
         }
     }
@@ -90,7 +106,10 @@ public class SQLiteDAL implements IDAL{
                     "SET Deleted = 1\n"+
                     "WHERE ID = "+emp.getId()+";";
         try {
-            return stat.executeUpdate(sql)>0;
+            stat = db.createStatement();
+            int rows = stat.executeUpdate(sql);
+            stat.close();
+            return rows>0;
 
         }catch (Exception e){
             return false;
@@ -109,10 +128,13 @@ public class SQLiteDAL implements IDAL{
             preparedStatement.setString(1, emp.getFirstName());
             preparedStatement.setString(2, emp.getLastName());
             preparedStatement.setString(3, emp.getContract());
-            preparedStatement.setString(4, emp.getDateOfHire());
+            preparedStatement.setString(4, emp.getDateOfHire().toString());
 
             int rowsAffected = preparedStatement.executeUpdate();
+            preparedStatement.close();
+            stat = db.createStatement();
             stat.executeUpdate("DELETE FROM EmployeeAvailability WHERE ID = "+emp.getId());
+            stat.close();
             employeeAvailability(emp);
             for(Role role: emp.getRoles()){
                 if (!roleExists(emp.getId(),role,"rolesOfEmployees")){
@@ -135,7 +157,10 @@ public class SQLiteDAL implements IDAL{
         preStat.setInt(1,ID);
         preStat.setInt(2,role.getID());
         ResultSet set = preStat.executeQuery();
-        return set.getInt(1)>0;
+        int count = set.getInt(1);
+        set.close();
+        preStat.close();
+        return count>0;
     }
 
     private void insertRolesOfShifts(Shift shift) throws SQLException{
@@ -147,8 +172,10 @@ public class SQLiteDAL implements IDAL{
                 preStat.setInt(2,shift.getID());
                 preStat.setInt(3,shift.getAmountOfRoles().get(p.getRole().getID()));
                 preStat.executeUpdate();
+                preStat.clearParameters();
             }
         }
+        preStat.close();
     }
     private void insertEmployeesOfShifts(Shift shift) throws SQLException{
         String sql = "INSERT INTO EmployeesInShifts VALUES (?,?)";
@@ -157,8 +184,11 @@ public class SQLiteDAL implements IDAL{
             if(p.getEmployee()!=null){
                 preStat.setInt(1,shift.getID());
                 preStat.setInt(2,p.getEmployee().getId());
+                preStat.executeUpdate();
+                preStat.clearParameters();
             }
         }
+        preStat.close();
     }
     @Override
     public boolean insert(Shift shift) {
@@ -173,6 +203,7 @@ public class SQLiteDAL implements IDAL{
             preStat.setInt(6, shift.getManager().getId());
             preStat.setInt(7, 0);
             preStat.executeUpdate();
+            preStat.close();
             insertRolesOfShifts(shift);
             insertEmployeesOfShifts(shift);
             return true;
@@ -188,7 +219,9 @@ public class SQLiteDAL implements IDAL{
                 "SET Deleted = 1\n"+
                 "WHERE ID = "+shift.getID()+";";
         try {
-            return stat.executeUpdate(sql)>0;
+            Statement stat = db.createStatement();
+            int rows = stat.executeUpdate(sql);
+            return rows>0;
 
         }catch (Exception e){
             return false;
@@ -201,7 +234,6 @@ public class SQLiteDAL implements IDAL{
                 "SET Date=? , Duration=? , End_Time= ? , Start_Time=?, ManagerID=?" +
                 "WHERE ID=?";
         try {
-            Statement stat;
             PreparedStatement preStat = db.prepareStatement(sql);
             preStat.setInt(6, shift.getID());
             preStat.setString(4, shift.getStartTime());
@@ -213,9 +245,12 @@ public class SQLiteDAL implements IDAL{
             stat = db.createStatement();
             stat.executeUpdate("DELETE FROM RolesOfShifts" +
                                "WHERE ShiftID="+shift.getID());
+            stat.close();
             insertRolesOfShifts(shift);
+            stat = db.createStatement()
             stat.executeUpdate("DELETE FROM EmployeesInShifts" +
                     "WHERE ShiftID="+shift.getID());
+            stat.close();
             insertEmployeesOfShifts(shift);
             return true;
         }
@@ -232,7 +267,9 @@ public class SQLiteDAL implements IDAL{
             preStat.setString(1,day.getDate());
             preStat.setInt(2,day.getMorningShift().getID());
             preStat.setInt(3,day.getEveningShift().getID());
-            return preStat.executeUpdate()==1;
+            int rows = preStat.executeUpdate();
+            preStat.close();
+            return rows==1;
         }
         catch (SQLException e){
             return false;
@@ -242,9 +279,10 @@ public class SQLiteDAL implements IDAL{
     @Override
     public boolean delete(Day day) {
         try{
-            Statement stat = db.createStatement();
-            stat.executeUpdate("DELETE FROM Days WHERE Date="+day.getDate());
-            return true;
+            stat = db.createStatement();
+            int rows = stat.executeUpdate("DELETE FROM Days WHERE Date="+day.getDate());
+            stat.close();
+            return rows==1;
         }
         catch (SQLException e){
             return false;
@@ -261,7 +299,9 @@ public class SQLiteDAL implements IDAL{
             preStat.setInt(1,day.getMorningShift().getID());
             preStat.setInt(2,day.getEveningShift().getID());
             preStat.setString(3,day.getDate());
-            return preStat.executeUpdate()==1;
+            int rows = preStat.executeUpdate();
+            preStat.close();
+            return rows==1;
         }
         catch (SQLException e){
             return false;
@@ -274,9 +314,13 @@ public class SQLiteDAL implements IDAL{
      */
     public int shiftID(){
         try {
+            stat = db.createStatement();
             String sql = "SELECT COUNT(*) FROM Shifts";
             ResultSet set = stat.executeQuery(sql);
-            return set.getInt(1);
+            int count = set.getInt(1);
+            set.close();
+            stat.close();
+            return count;
         }catch (SQLException e){
             return -1;
         }
@@ -288,10 +332,15 @@ public class SQLiteDAL implements IDAL{
      */
     public int roleID(){
         try {
+            stat = db.createStatement();
             String sql = "SELECT COUNT(*) FROM Roles";
             ResultSet set = stat.executeQuery(sql);
-            return set.getInt(1);
+            int count = set.getInt(1);
+            set.close();
+            stat.close();
+            return count;
         }catch (SQLException e){
+            System.out.println(e);
             return -1;
         }
     };
@@ -300,5 +349,40 @@ public class SQLiteDAL implements IDAL{
         dataSource.setUrl("jdbc:sqlite:/home/omer/IdeaProjects/super_lee/superlee");
         return true;
 
+    }
+    public List<Role> getRoles(){
+        List<Role> list = new Vector<Role>();
+        try {
+
+            ResultSet set = getListByID("Roles", null, null);
+            //set.first();
+            while(set.next()){
+                Role role = new Role(set.getInt(1),set.getString(2));
+                //System.out.println(role.getID()+" "+role.getName());
+                list.add(role);
+            }
+            set.close();
+            stat.close();
+
+        }
+        catch (SQLException e){
+            System.out.println(e);
+        }
+        return list;
+    }
+
+    private ResultSet getListByID(String table,String attribute,String value){
+        String sql = "SELECT * FROM "+table+" ";
+        if (attribute!=null)
+                    sql += "WHERE "+attribute+"="+value;
+        try {
+            stat = db.createStatement();
+            ResultSet set = stat.executeQuery(sql);
+            return set;
+        }
+        catch (SQLException e){
+            System.out.println(e);
+            return null;
+        }
     }
 }

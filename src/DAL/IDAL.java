@@ -2,6 +2,8 @@ package DAL;
 
 import BackEnd.*;
 
+import java.util.List;
+
 
 /**
  * Created by omer on 18/04/16.
@@ -17,4 +19,5 @@ public interface IDAL {
     public boolean delete(Day day);
     public boolean update(Day day);
     public boolean addRole(int roleID, int empID);
+    public List<Role> getRoles();
 }
