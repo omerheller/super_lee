@@ -7,11 +7,8 @@ import BackEnd.Shift;
 import DAL.IDAL;
 import DAL.SQLiteDAL;
 
-import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
 import java.util.Vector;
 
 /**
@@ -21,7 +18,7 @@ public class BL_IMPL implements IBL {
     private static IDAL SQLDAL = new SQLiteDAL();
 
     @Override
-    public boolean insertEmployee(String firstName, String lastName, int id, Vector<Role> roles, LocalDateTime dateOfHire, String contract, String bankAcct, int[][] ava) {
+    public boolean insertEmployee(String firstName, String lastName, int id, Vector<Role> roles, LocalDate dateOfHire, String contract, String bankAcct, int[][] ava) {
         /*check validity*/
 
         //create emp
@@ -32,7 +29,7 @@ public class BL_IMPL implements IBL {
     }
 
     @Override
-    public boolean updateEmployee(String firstName, String lastName, int id, Vector<Role> roles, LocalDateTime dateOfHire, String contract, String bankAcct, int[][] ava) {
+    public boolean updateEmployee(String firstName, String lastName, int id, Vector<Role> roles, LocalDate dateOfHire, String contract, String bankAcct, int[][] ava) {
         Employee emp = new Employee(firstName, lastName, id, roles, dateOfHire, contract, bankAcct, ava);
 
         return SQLDAL.update(emp);
@@ -90,12 +87,12 @@ public class BL_IMPL implements IBL {
     }
 
     @Override
-    public Day getDay(Date d) {
+    public Day getDay(LocalDate d) {
         return null;
     }
 
     @Override
-    public Shift getShift(Date d, Time startTime) {
+    public Shift getShift(int id) {
         return null;
     }
 
