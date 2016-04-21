@@ -3,14 +3,15 @@ package BackEnd;
 /**
  * Created by omer on 18/04/16.
  */
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 public class Day {
     private Shift morningShift;
     private Shift eveningShift;
-    private Date date;
+    private LocalDate date;
 
 
-    public Day(Shift morningShift, Shift eveningShift, Date date) {
+    public Day(Shift morningShift, Shift eveningShift, LocalDate date) {
         this.morningShift = morningShift;
         this.eveningShift = eveningShift;
         this.date = date;

@@ -7,10 +7,8 @@ import BackEnd.Shift;
 import DAL.IDAL;
 import DAL.SQLiteDAL;
 
-import java.sql.Time;
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Vector;
 
 /**
@@ -89,12 +87,12 @@ public class BL_IMPL implements IBL {
     }
 
     @Override
-    public Day getDay(Date d) {
+    public Day getDay(LocalDate d) {
         return null;
     }
 
     @Override
-    public Shift getShift(Date d, Time startTime) {
+    public Shift getShift(int id) {
         return null;
     }
 

@@ -2,9 +2,8 @@ package BL;
 
 import BackEnd.*;
 
-import java.sql.Time;
 import java.time.LocalDate;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Vector;
 
 /**
@@ -23,8 +22,8 @@ public interface IBL {
     boolean insertRole(String name);
     boolean updateRole(int id, String name);
     boolean deleteRole(Role r);
-    Day getDay(Date d);
-    Shift getShift(Date d, Time startTime);
+    Day getDay(LocalDate d);
+    Shift getShift(int id);
     Employee getEmployee(int id);
     Role getRole(int id);
     Vector<Role> getRoles();
