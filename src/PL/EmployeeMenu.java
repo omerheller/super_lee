@@ -3,7 +3,6 @@ package PL;
 import BL.*;
 import BackEnd.*;
 
-import javax.swing.text.html.parser.Parser;
 import java.util.*;
 import java.time.format.DateTimeFormatter;
 import java.time.*;
@@ -30,11 +29,6 @@ public class EmployeeMenu {
                 lineIndex++;
             }
         }
-
-        //TEST//
-        rolesDictionary.put(1,new Role(1,"cashier"));
-        rolesDictionary.put(2, new Role(2,"manager"));
-        rolesDictionary.put(3,new Role(3, "driver"));
 
         /*initialize days strings*/
         days[0][0]="Sunday Morning:"; days[1][0]="Sunday Evening:";
@@ -257,7 +251,7 @@ public class EmployeeMenu {
                     while(!finishedRoles){
                         System.out.println("Choose a role to remove, Press 0 if finished:");
 
-                        //print the roles available
+                        //print the roles in the employee's roles vector
                         for(z=1;z<=emp.getRoles().size();z++){
                             System.out.println(z+ ": " + emp.getRoles().get(z).getName());
                         }
@@ -266,7 +260,8 @@ public class EmployeeMenu {
                         if (roleChosen==0){
                             finishedRoles = true;
                         }
-                        else if(roleChosen>0 && roleChosen<=rolesDictionary.size()){
+                        else if(roleChosen>0 && roleChosen<=rolesDictionary.size()){ //make sure choice is valid
+                            //remove from the employee's roles vector
                             emp.getRoles().remove(roleChosen);
                             System.out.println(rolesDictionary.get(roleChosen).getName() + " removed." );
                         }
@@ -291,8 +286,8 @@ public class EmployeeMenu {
                         if (roleChosen==0){
                             finishedRoles = true;
                         }
-                        else if(roleChosen>0 && roleChosen<=rolesDictionary.size()){
-                            //if emp doesn't have the chosen role
+                        else if(roleChosen>0 && roleChosen<=rolesDictionary.size()){ //make sure choice is valid
+                            //if emp doesn't have the chosen role add to his roles vector
                             if(!emp.getRoles().contains(rolesDictionary.get(roleChosen))){
                                 emp.getRoles().add(rolesDictionary.get(roleChosen));
                                 System.out.println(rolesDictionary.get(roleChosen).getName() + " added." );
@@ -319,27 +314,44 @@ public class EmployeeMenu {
             }
         }
 
-
-
-
-
-
-
-
     }
 
     private static void addRole(){
-
-
-
+        String name;
+        System.out.println("Please insert role name:");
+        name = sc.next();
+        bl_impl.insertRole(name);
     }
 
     private static void editRole(){
+        int roleChosen, delete, z;
+        String newName;
+        System.out.println("Choose role:");
 
+        //print the roles available
+        for(z=1;z<=rolesDictionary.size();z++){
+            System.out.println(z+ ": " + rolesDictionary.get(z).getName());
+        }
+        //chose which role from the list
+        roleChosen = sc.nextInt();
 
+        if(roleChosen>0 && roleChosen<=rolesDictionary.size()){   //make sure choice is valid
+            System.out.println("To delete role press 1, to edit press 0:");
+            delete = sc.nextInt();
 
+            switch(delete){
+                case 0:
+                    //edit role
+                    System.out.println("Insert new name:");
+                    newName = sc.next();
+                    bl_impl.updateRole(rolesDictionary.get(roleChosen).getID(), newName);
+                case 1:
+                    //delete role
+                    bl_impl.deleteRole(rolesDictionary.get(roleChosen));
+            }
+        }
+        else {
+            System.out.println("Try again..");
+        }
     }
-
-
-
 }
