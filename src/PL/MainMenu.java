@@ -28,7 +28,7 @@ public class MainMenu {
                     switchCase=true;
                     break;
                 case 2:
-                    //ShiftMenu.run();
+                    ShiftMenu.run();
                     switchCase=true;
                     break;
                 default:

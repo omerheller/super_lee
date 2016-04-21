@@ -50,12 +50,13 @@ public class SQLiteDAL implements IDAL{
             preStat.setString(3,emp.getLastName());
             preStat.setString(4,emp.getContract());
             preStat.setString(5,emp.getDateOfHire().toString());
-            preStat.setString(6,emp.getBankAccount());
+            preStat.setString(6,emp.getBankAcct());
             preStat.setInt(7,0);
             preStat.executeUpdate();
             for(Role r: emp.getRoles()){
                 addRole(r.getID(), emp.getId());
             }
+            employeeAvailability(emp);
         }
         catch(Exception e){
             System.out.print(e);
@@ -109,7 +110,7 @@ public class SQLiteDAL implements IDAL{
             preparedStatement.setString(1, emp.getFirstName());
             preparedStatement.setString(2, emp.getLastName());
             preparedStatement.setString(3, emp.getContract());
-            preparedStatement.setString(4, emp.getDateOfHire());
+            preparedStatement.setString(4, emp.getDateOfHire().toString());
 
             int rowsAffected = preparedStatement.executeUpdate();
             stat.executeUpdate("DELETE FROM EmployeeAvailability WHERE ID = "+emp.getId());
@@ -297,7 +298,7 @@ public class SQLiteDAL implements IDAL{
     };
 
     private boolean connected() {
-        dataSource.setUrl("jdbc:sqlite:/home/omer/IdeaProjects/super_lee/superlee");
+        dataSource.setUrl("jdbc:sqlite:C:/Users/matan/IdeaProjects/super_lee/superlee");
         return true;
 
     }

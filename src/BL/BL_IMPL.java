@@ -74,11 +74,12 @@ public class BL_IMPL implements IBL {
 
     @Override
     public boolean insertRole(String name) {
+        //return SQLDAL.addRole(name);
         return false;
     }
 
     @Override
-    public boolean updateRole(String name) {
+    public boolean updateRole(int id, String name) {
         return false;
     }
 
@@ -108,12 +109,17 @@ public class BL_IMPL implements IBL {
     }
 
     @Override
-    public List<Role> getRoles() {
+    public Vector<Role> getRoles() {
         return null;
     }
 
     @Override
-    public List<Employee> getEmployees() {
+    public Vector<Employee> getEmployees() {
+        return null;
+    }
+
+    @Override
+    public Vector<Employee> getAvailableEmployees(int[][] avail) {
         return null;
     }
 
