@@ -30,4 +30,5 @@ public interface IDAL {
     Role getRole(int id);
     Vector<Role> getRoles();
     Vector<Employee> getEmployees();
+    Vector<Employee> getAvailableEmployees(int[][] avail);
 }
