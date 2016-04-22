@@ -293,6 +293,9 @@ public class SQLiteDAL implements IDAL{
             stat.executeUpdate("DELETE FROM EmployeeAvailability WHERE EmployeeID = "+emp.getId());
             stat.close();
             employeeAvailability(emp);
+            stat = db.createStatement();
+            stat.executeUpdate("DELETE FROM RolesOfEmployees WHERE EmployeeID = "+emp.getId());
+            stat.close();
             for(Role role: emp.getRoles()){
                 if (!roleExists(emp.getId(),role,"rolesOfEmployees")){
                     addRole(role.getID(),emp.getId());
