@@ -24,6 +24,7 @@ public class EmployeeMenu {
 
         //fill in the rolesDicationary
         if(bl_impl.getRoles()!=null) {
+            System.out.println("got roles");
             for (Role r : bl_impl.getRoles()) {
                 rolesDictionary.put(lineIndex, r);
                 lineIndex++;
@@ -196,12 +197,12 @@ public class EmployeeMenu {
 
                     System.out.println("Insert Employee's date of hire (dd/MM/yyyy):");
                     String inputDate = sc.next();
-                    LocalDateTime date;
+                    LocalDate date;
                     if(inputDate==""){
-                        date = LocalDateTime.parse(emp.getDateOfHire(), formatter);
+                        date = LocalDate.parse(emp.getDateOfHire(), formatter);
                     }
                     else{
-                        date = LocalDateTime.parse(sc.next(), formatter);
+                        date = LocalDate.parse(sc.next(), formatter);
                     }
 
                     System.out.println("Insert Employee's contract:");
@@ -244,7 +245,7 @@ public class EmployeeMenu {
                         }
                     }
 
-                    bl_impl.updateEmployee(emp.getFirstName(), emp.getLastName(), emp.getId(), emp.getRoles(), LocalDateTime.parse(emp.getDateOfHire(), formatter), emp.getContract(), emp.getBankAcct(), avail);
+                    bl_impl.updateEmployee(emp.getFirstName(), emp.getLastName(), emp.getId(), emp.getRoles(), LocalDate.parse(emp.getDateOfHire(), formatter), emp.getContract(), emp.getBankAcct(), avail);
                     switchCase = true;
                     break;
                 case 3:
@@ -270,7 +271,7 @@ public class EmployeeMenu {
                         }
                     }
 
-                    bl_impl.updateEmployee(emp.getFirstName(), emp.getLastName(), emp.getId(), emp.getRoles(), LocalDateTime.parse(emp.getDateOfHire(), formatter), emp.getContract(), emp.getBankAcct(), emp.getAvailability());
+                    bl_impl.updateEmployee(emp.getFirstName(), emp.getLastName(), emp.getId(), emp.getRoles(), LocalDate.parse(emp.getDateOfHire(), formatter), emp.getContract(), emp.getBankAcct(), emp.getAvailability());
                     switchCase = true;
                     break;
                 case 4:
@@ -301,7 +302,7 @@ public class EmployeeMenu {
                         }
                     }
 
-                    bl_impl.updateEmployee(emp.getFirstName(), emp.getLastName(), emp.getId(), emp.getRoles(), LocalDateTime.parse(emp.getDateOfHire(), formatter), emp.getContract(), emp.getBankAcct(), emp.getAvailability());
+                    bl_impl.updateEmployee(emp.getFirstName(), emp.getLastName(), emp.getId(), emp.getRoles(), LocalDate.parse(emp.getDateOfHire(), formatter), emp.getContract(), emp.getBankAcct(), emp.getAvailability());
                     switchCase = true;
                     break;
                 case 5:

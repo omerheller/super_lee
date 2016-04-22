@@ -46,7 +46,7 @@ public class SQLiteDAL implements IDAL{
     }
 
     @Override
-    public Day getDay(LocalDateTime d) {
+    public Day getDay(LocalDate d) {
         ResultSet set = getListByID("Days","Date",d.toString());
         try{
             int morningShiftID = set.getInt("MorningShift");
@@ -71,7 +71,7 @@ public class SQLiteDAL implements IDAL{
             int duration = set.getInt("Duration");
             LocalDateTime startTime = LocalDateTime.parse(set.getString("StartTime"),formatterTime);
             LocalDateTime endTime = LocalDateTime.parse(set.getString("EndTime"),formatterTime);
-            LocalDateTime date = LocalDateTime.parse(set.getString("Date"),formatterDate);
+            LocalDate date = LocalDate.parse(set.getString("Date"),formatterDate);
             int managerID = set.getInt("ManagerID");
             set.close();
             stat.close();
@@ -132,7 +132,7 @@ public class SQLiteDAL implements IDAL{
             String firstName = set.getString("FirstName");
             String lastName = set.getString("LastName");
             String contract = set.getString("Contract");
-            LocalDateTime dateOfHire = LocalDateTime.parse(set.getString("DateOfHire"),formatterDate);
+            LocalDate dateOfHire = LocalDate.parse(set.getString("DateOfHire"),formatterDate);
             String bankAccount = set.getString("BankAccount");
             set.close();
             stat.close();
@@ -149,7 +149,7 @@ public class SQLiteDAL implements IDAL{
     }
 
     private int[][] getAvailability(int id){
-        int[][] array = new int[2][7];
+        int[][] array = new int[7][2];
         try {
             ResultSet set = getListByID("EmployeeAvailability", "EmployeeID", Integer.toString(id));
             int counter = 2;
@@ -274,7 +274,7 @@ public class SQLiteDAL implements IDAL{
     @Override
     public boolean update(Employee emp) {
         String sql = "UPDATE Employees " +
-                "SET firstName=? , lastName=? , contract = ? , date_of_hire = ? " +
+                "SET FirstName=? , LastName=? , Contract = ? , DateOfHire = ? , BankAccount = ?" +
                 "WHERE ID=?";
         try{
             PreparedStatement preparedStatement =
@@ -284,11 +284,13 @@ public class SQLiteDAL implements IDAL{
             preparedStatement.setString(2, emp.getLastName());
             preparedStatement.setString(3, emp.getContract());
             preparedStatement.setString(4, emp.getDateOfHire().toString());
+            preparedStatement.setString(5, emp.getBankAcct());
+            preparedStatement.setInt(6, emp.getId());
 
             int rowsAffected = preparedStatement.executeUpdate();
             preparedStatement.close();
             stat = db.createStatement();
-            stat.executeUpdate("DELETE FROM EmployeeAvailability WHERE ID = "+emp.getId());
+            stat.executeUpdate("DELETE FROM EmployeeAvailability WHERE EmployeeID = "+emp.getId());
             stat.close();
             employeeAvailability(emp);
             for(Role role: emp.getRoles()){
@@ -299,6 +301,7 @@ public class SQLiteDAL implements IDAL{
             return (rowsAffected==1);
 
         } catch(SQLException e){
+            System.out.println(e);
             return false;
         }
 
@@ -307,7 +310,7 @@ public class SQLiteDAL implements IDAL{
     private boolean roleExists(int ID,Role role,String table) throws SQLException{
 
         String sql = "SELECT COUNT(*) FROM "+table+
-                " WHERE employeeID=?,roleID=?";
+                " WHERE EmployeeID=? AND RoleID=?";
         PreparedStatement preStat = db.prepareStatement(sql);
         preStat.setInt(1,ID);
         preStat.setInt(2,role.getID());

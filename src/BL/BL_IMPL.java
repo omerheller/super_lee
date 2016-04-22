@@ -98,7 +98,8 @@ public class BL_IMPL implements IBL {
 
     @Override
     public Employee getEmployee(int id) {
-        return null;
+
+        return SQLDAL.getEmployee(id);
     }
 
     @Override
@@ -108,7 +109,7 @@ public class BL_IMPL implements IBL {
 
     @Override
     public Vector<Role> getRoles() {
-        return null;
+        return SQLDAL.getRoles();
     }
 
     @Override

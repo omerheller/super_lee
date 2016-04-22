@@ -3,6 +3,7 @@ package DAL;
 import BackEnd.*;
 
 import java.sql.Time;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -23,7 +24,7 @@ public interface IDAL {
     public boolean delete(Day day);
     public boolean update(Day day);
     public boolean addRole(int roleID, int empID);
-    Day getDay(LocalDateTime d);
+    Day getDay(LocalDate d);
     Shift getShift(int id);
     Employee getEmployee(int id);
     Role getRole(int id);
