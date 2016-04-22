@@ -2,6 +2,7 @@ package DAL;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.Date;
@@ -46,7 +47,7 @@ public class SQLiteDAL implements IDAL{
     }
 
     @Override
-    public Day getDay(LocalDateTime d) {
+    public Day getDay(LocalDate d) {
         ResultSet set = getListByID("Days","Date",d.toString());
         try{
             int morningShiftID = set.getInt("MorningShift");
@@ -69,12 +70,15 @@ public class SQLiteDAL implements IDAL{
         ResultSet set = getListByID("Shift","ID",value);
         try{
             int duration = set.getInt("Duration");
-            LocalDateTime startTime = LocalDateTime.parse(set.getString("StartTime"),formatterTime);
-            LocalDateTime endTime = LocalDateTime.parse(set.getString("EndTime"),formatterTime);
-            LocalDateTime date = LocalDateTime.parse(set.getString("Date"),formatterDate);
+            LocalTime startTime = LocalTime.parse(set.getString("StartTime"),formatterTime);
+            LocalTime endTime = LocalTime.parse(set.getString("EndTime"),formatterTime);
+            LocalDate date = LocalDate.parse(set.getString("Date"),formatterDate);
             int managerID = set.getInt("ManagerID");
+            int deleted = set.getInt("Deleted");
             set.close();
             stat.close();
+            if (deleted == 1)
+                return null;
             Employee manager = getEmployee(managerID);
             HashMap<Integer,Integer> map = getRolesOfShift(id);
             Vector<Pair> roles = getEmployeesOfShift(id);
@@ -117,7 +121,8 @@ public class SQLiteDAL implements IDAL{
                 Employee emp = getEmployee(key);
                 Role role = getRole(map.get(key));
                 Pair pair = new Pair(role,emp);
-                vec.add(pair);
+                if(emp!=null)
+                    vec.add(pair);
             }
         }
         catch (SQLException e){
@@ -132,10 +137,13 @@ public class SQLiteDAL implements IDAL{
             String firstName = set.getString("FirstName");
             String lastName = set.getString("LastName");
             String contract = set.getString("Contract");
-            LocalDateTime dateOfHire = LocalDateTime.parse(set.getString("DateOfHire"),formatterDate);
+            LocalDate dateOfHire = LocalDate.parse(set.getString("DateOfHire"),formatterDate);
             String bankAccount = set.getString("BankAccount");
+            int deleted = set.getInt("Deleted");
             set.close();
             stat.close();
+            if (deleted==1)
+                return null;
             Vector<Role> roles = getEmployeeRoles(id);
             int[][] availability = getAvailability(id);
             Employee emp = new Employee(firstName,lastName,
@@ -155,7 +163,7 @@ public class SQLiteDAL implements IDAL{
             int counter = 2;
             for(int i=0;i<7;i++){
                 for(int j=0;j<2;j++){
-                    array[i][j] = set.getInt(counter);
+                    array[j][i] = set.getInt(counter);
                     counter++;
                 }
             }
@@ -180,7 +188,8 @@ public class SQLiteDAL implements IDAL{
             stat.close();
             for(Integer roleID: roleIDs){
                 Role role = getRole(roleID);
-                vec.add(role);
+                if (role!=null)
+                    vec.add(role);
             }
         }
         catch (SQLException e){
@@ -192,8 +201,10 @@ public class SQLiteDAL implements IDAL{
     @Override
     public Role getRole(int id) {
         try{
+            Role role = null;
             ResultSet set = getListByID("Roles","ID",Integer.toString(id));
-            Role role = new Role(set.getInt("ID"),set.getString("Name"));
+            if (set.getInt("Deleted")==0)
+                role = new Role(set.getInt("ID"),set.getString("Name"));
             set.close();
             stat.close();
             return role;
@@ -274,7 +285,7 @@ public class SQLiteDAL implements IDAL{
     @Override
     public boolean update(Employee emp) {
         String sql = "UPDATE Employees " +
-                "SET firstName=? , lastName=? , contract = ? , date_of_hire = ? " +
+                "SET FirstName=? , LastName=? , Contract = ? , DateOfHire = ? , BankAccount = ?" +
                 "WHERE ID=?";
         try{
             PreparedStatement preparedStatement =
@@ -284,13 +295,18 @@ public class SQLiteDAL implements IDAL{
             preparedStatement.setString(2, emp.getLastName());
             preparedStatement.setString(3, emp.getContract());
             preparedStatement.setString(4, emp.getDateOfHire().toString());
+            preparedStatement.setString(5, emp.getBankAcct());
+            preparedStatement.setInt(6, emp.getId());
 
             int rowsAffected = preparedStatement.executeUpdate();
             preparedStatement.close();
             stat = db.createStatement();
-            stat.executeUpdate("DELETE FROM EmployeeAvailability WHERE ID = "+emp.getId());
+            stat.executeUpdate("DELETE FROM EmployeeAvailability WHERE EmployeeID = "+emp.getId());
             stat.close();
             employeeAvailability(emp);
+            stat = db.createStatement();
+            stat.executeUpdate("DELETE FROM RolesOfEmployees WHERE EmployeeID = "+emp.getId());
+            stat.close();
             for(Role role: emp.getRoles()){
                 if (!roleExists(emp.getId(),role,"rolesOfEmployees")){
                     addRole(role.getID(),emp.getId());
@@ -299,6 +315,7 @@ public class SQLiteDAL implements IDAL{
             return (rowsAffected==1);
 
         } catch(SQLException e){
+            System.out.println(e);
             return false;
         }
 
@@ -307,7 +324,7 @@ public class SQLiteDAL implements IDAL{
     private boolean roleExists(int ID,Role role,String table) throws SQLException{
 
         String sql = "SELECT COUNT(*) FROM "+table+
-                " WHERE employeeID=?,roleID=?";
+                " WHERE EmployeeID=? AND RoleID=?";
         PreparedStatement preStat = db.prepareStatement(sql);
         preStat.setInt(1,ID);
         preStat.setInt(2,role.getID());
@@ -480,7 +497,7 @@ public class SQLiteDAL implements IDAL{
         }catch (SQLException e){
             return -1;
         }
-    };
+    }
 
     /**
      * used to get the next RoleID
@@ -499,10 +516,10 @@ public class SQLiteDAL implements IDAL{
             System.out.println(e);
             return -1;
         }
-    };
+    }
 
     private boolean connected() {
-        dataSource.setUrl("jdbc:sqlite:/home/omer/IdeaProjects/super_lee/superlee");
+        dataSource.setUrl("jdbc:sqlite:C:/Users/matan/IdeaProjects/super_lee/superlee");
         return true;
 
     }
@@ -513,9 +530,11 @@ public class SQLiteDAL implements IDAL{
             ResultSet set = getListByID("Roles", null, null);
             //set.first();
             while(set.next()){
-                Role role = new Role(set.getInt(1),set.getString(2));
-                //System.out.println(role.getID()+" "+role.getName());
-                list.add(role);
+                if(set.getInt("Deleted")==0) {
+                    Role role = new Role(set.getInt(1), set.getString(2));
+                    //System.out.println(role.getID()+" "+role.getName());
+                    list.add(role);
+                }
             }
             set.close();
             stat.close();
@@ -545,5 +564,39 @@ public class SQLiteDAL implements IDAL{
             System.out.println(e);
             return null;
         }
+    }
+
+    public Vector<Employee> getAvailableEmployees(int[][] avail){
+        Vector<Employee> employees = new Vector<>();
+        String[][] days = new String[2][7];
+                /*initialize days strings*/
+        days[0][0]="SundayM"; days[1][0]="SundayE";
+        days[0][1]="MondayM"; days[1][1]="MondayE";
+        days[0][2]="TuesdayM"; days[1][2]="TuesdayE";
+        days[0][3]="WednesdayM"; days[1][3]="WednesdayE";
+        days[0][4]="ThursdayM"; days[1][4]="ThursdayE";
+        days[0][5]="FridayM"; days[1][5]="FridayE";
+        days[0][6]="SaturdayM"; days[1][6]="SaturdayE";
+        String attribute = days[avail[0][0]][avail[0][1]];
+        try {
+            stat = db.createStatement();
+            ResultSet set = stat.executeQuery("SELECT EmployeeID FROM EmployeeAvailability " +
+                    "WHERE "+attribute+"=1");
+            Vector<Integer> ids = new Vector<>();
+            while (set.next()){
+                ids.add(set.getInt("EmployeeID"));
+            }
+            set.close();
+            stat.close();
+            for(Integer id : ids){
+                Employee emp = getEmployee(id);
+                if (emp!=null)
+                    employees.add(emp);
+            }
+        }
+        catch (SQLException e){
+
+        }
+        return employees;
     }
 }

@@ -4,6 +4,8 @@ import BackEnd.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.Vector;
 
 /**
@@ -13,7 +15,7 @@ public interface IBL {
     boolean insertEmployee(String firstName, String lastName, int id, Vector<Role> roles, LocalDate dateOfHire, String contract, String bankAcct, int[][] ava);
     boolean updateEmployee(String firstName, String lastName, int id, Vector<Role> roles, LocalDate dateOfHire, String contract, String bankAcct, int[][] ava);
     boolean deleteEmployee(Employee emp);
-    boolean insertShift();
+    boolean insertShift(LocalTime startTime, LocalTime endTime, int duration, LocalDate date, Employee manager, Vector<Pair> roles, HashMap<Integer,Integer> amountOfRoles);
     boolean updateShift();
     boolean deleteShift(Shift s);
     boolean insertDay();

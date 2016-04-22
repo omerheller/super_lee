@@ -2,6 +2,7 @@ package BackEnd;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -10,8 +11,8 @@ import java.util.*;
  */
 public class Shift {
     private int ID;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    private LocalTime startTime;
+    private LocalTime endTime;
     private int duration;
     private LocalDate date;
     private Employee manager;
@@ -20,7 +21,7 @@ public class Shift {
     private static DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ENGLISH);
     private static DateTimeFormatter formatterTime = DateTimeFormatter.ofPattern("HH:mm", Locale.ENGLISH);
 
-    public Shift(int ID, LocalDateTime startTime, LocalDateTime endTime, int duration,
+    public Shift(int ID, LocalTime startTime, LocalTime endTime, int duration,
                  LocalDate date, Employee manager, Vector<Pair> roles, HashMap<Integer,Integer> amountOfRoles) {
         this.ID = ID;
         this.startTime = startTime;

@@ -1,14 +1,13 @@
 package BL;
 
-import BackEnd.Day;
-import BackEnd.Employee;
-import BackEnd.Role;
-import BackEnd.Shift;
+import BackEnd.*;
 import DAL.IDAL;
 import DAL.SQLiteDAL;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.Vector;
 
 /**
@@ -31,7 +30,6 @@ public class BL_IMPL implements IBL {
     @Override
     public boolean updateEmployee(String firstName, String lastName, int id, Vector<Role> roles, LocalDate dateOfHire, String contract, String bankAcct, int[][] ava) {
         Employee emp = new Employee(firstName, lastName, id, roles, dateOfHire, contract, bankAcct, ava);
-
         return SQLDAL.update(emp);
     }
 
@@ -41,8 +39,9 @@ public class BL_IMPL implements IBL {
     }
 
     @Override
-    public boolean insertShift() {
-        return false;
+    public boolean insertShift(LocalTime startTime, LocalTime endTime, int duration, LocalDate date, Employee manager, Vector<Pair> roles, HashMap<Integer,Integer> amountOfRoles){
+        Shift newShift = new Shift(SQLDAL.shiftID(), startTime, endTime, duration, date, manager, roles, amountOfRoles);
+        return SQLDAL.insert(newShift);
     }
 
     @Override
@@ -52,7 +51,7 @@ public class BL_IMPL implements IBL {
 
     @Override
     public boolean deleteShift(Shift s) {
-        return false;
+        return SQLDAL.delete(s);
     }
 
     @Override
@@ -67,7 +66,7 @@ public class BL_IMPL implements IBL {
 
     @Override
     public boolean deleteDay(Day d) {
-        return false;
+        return SQLDAL.delete(d);
     }
 
     @Override
@@ -88,37 +87,37 @@ public class BL_IMPL implements IBL {
 
     @Override
     public Day getDay(LocalDate d) {
-        return null;
+        return SQLDAL.getDay(d);
     }
 
     @Override
     public Shift getShift(int id) {
-        return null;
+        return SQLDAL.getShift(id);
     }
 
     @Override
     public Employee getEmployee(int id) {
-        return null;
+        return SQLDAL.getEmployee(id);
     }
 
     @Override
     public Role getRole(int id) {
-        return null;
+        return SQLDAL.getRole(id);
     }
 
     @Override
     public Vector<Role> getRoles() {
-        return null;
+        return SQLDAL.getRoles();
     }
 
     @Override
     public Vector<Employee> getEmployees() {
-        return null;
+        return SQLDAL.getEmployees();
     }
 
     @Override
     public Vector<Employee> getAvailableEmployees(int[][] avail) {
-        return null;
+        return SQLDAL.getAvailableEmployees(avail);
     }
 
 

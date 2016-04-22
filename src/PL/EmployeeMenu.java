@@ -23,10 +23,10 @@ public class EmployeeMenu {
         boolean switchCase = false;
 
         //fill in the rolesDicationary
-        if(bl_impl.getRoles()!=null) {
+        if(bl_impl.getRoles().size()>0) {
             for (Role r : bl_impl.getRoles()) {
-                rolesDictionary.put(lineIndex, r);
-                lineIndex++;
+                rolesDictionary.put(r.getID(), r);
+                //lineIndex++;
             }
         }
 
@@ -196,12 +196,12 @@ public class EmployeeMenu {
 
                     System.out.println("Insert Employee's date of hire (dd/MM/yyyy):");
                     String inputDate = sc.next();
-                    LocalDateTime date;
+                    LocalDate date;
                     if(inputDate==""){
-                        date = LocalDateTime.parse(emp.getDateOfHire(), formatter);
+                        date = LocalDate.parse(emp.getDateOfHire(), formatter);
                     }
                     else{
-                        date = LocalDateTime.parse(sc.next(), formatter);
+                        date = LocalDate.parse(sc.next(), formatter);
                     }
 
                     System.out.println("Insert Employee's contract:");
@@ -244,7 +244,7 @@ public class EmployeeMenu {
                         }
                     }
 
-                    bl_impl.updateEmployee(emp.getFirstName(), emp.getLastName(), emp.getId(), emp.getRoles(), LocalDateTime.parse(emp.getDateOfHire(), formatter), emp.getContract(), emp.getBankAcct(), avail);
+                    bl_impl.updateEmployee(emp.getFirstName(), emp.getLastName(), emp.getId(), emp.getRoles(), LocalDate.parse(emp.getDateOfHire(), formatter), emp.getContract(), emp.getBankAcct(), avail);
                     switchCase = true;
                     break;
                 case 3:
@@ -252,8 +252,8 @@ public class EmployeeMenu {
                         System.out.println("Choose a role to remove, Press 0 if finished:");
 
                         //print the roles in the employee's roles vector
-                        for(z=1;z<=emp.getRoles().size();z++){
-                            System.out.println(z+ ": " + emp.getRoles().get(z).getName());
+                        for(z=0;z<emp.getRoles().size();z++){
+                            System.out.println((z+1)+ ": " + emp.getRoles().get(z).getName());
                         }
                         roleChosen = sc.nextInt();
 
@@ -262,15 +262,15 @@ public class EmployeeMenu {
                         }
                         else if(roleChosen>0 && roleChosen<=rolesDictionary.size()){ //make sure choice is valid
                             //remove from the employee's roles vector
-                            emp.getRoles().remove(roleChosen);
-                            System.out.println(rolesDictionary.get(roleChosen).getName() + " removed." );
+                            System.out.println(emp.getRoles().get(roleChosen-1).getName() + " removed." );
+                            emp.getRoles().remove(roleChosen-1);
                         }
                         else{
                             System.out.println("Try again..");
                         }
                     }
 
-                    bl_impl.updateEmployee(emp.getFirstName(), emp.getLastName(), emp.getId(), emp.getRoles(), LocalDateTime.parse(emp.getDateOfHire(), formatter), emp.getContract(), emp.getBankAcct(), emp.getAvailability());
+                    bl_impl.updateEmployee(emp.getFirstName(), emp.getLastName(), emp.getId(), emp.getRoles(), LocalDate.parse(emp.getDateOfHire(), formatter), emp.getContract(), emp.getBankAcct(), emp.getAvailability());
                     switchCase = true;
                     break;
                 case 4:
@@ -279,7 +279,7 @@ public class EmployeeMenu {
 
                         //print the roles available
                         for(z=1;z<=rolesDictionary.size();z++){
-                            System.out.println(z+ ": " + rolesDictionary.get(z).getName());
+                            System.out.println(rolesDictionary.get(z).getID()+ ": " + rolesDictionary.get(z).getName());
                         }
                         roleChosen = sc.nextInt();
 
@@ -301,7 +301,7 @@ public class EmployeeMenu {
                         }
                     }
 
-                    bl_impl.updateEmployee(emp.getFirstName(), emp.getLastName(), emp.getId(), emp.getRoles(), LocalDateTime.parse(emp.getDateOfHire(), formatter), emp.getContract(), emp.getBankAcct(), emp.getAvailability());
+                    bl_impl.updateEmployee(emp.getFirstName(), emp.getLastName(), emp.getId(), emp.getRoles(), LocalDate.parse(emp.getDateOfHire(), formatter), emp.getContract(), emp.getBankAcct(), emp.getAvailability());
                     switchCase = true;
                     break;
                 case 5:
