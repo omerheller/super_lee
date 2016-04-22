@@ -35,7 +35,7 @@ public class ShiftMenu {
         System.out.println("Welcome to Shift menu");
         System.out.println("1. Add Shift");
         System.out.println("2. Edit/Delete Shift");
-        System.out.println("3. Add Day");
+        System.out.println("3. Display shifts");
 
         while(!switchCase) {
             int i = sc.nextInt();
@@ -49,7 +49,7 @@ public class ShiftMenu {
                     switchCase=true;
                     break;
                 case 3:
-                    addDay();
+                    displayShifts();
                     switchCase=true;
                     break;
                 default:
@@ -71,6 +71,8 @@ public class ShiftMenu {
         Vector<Pair>roles = new Vector<Pair>();
         Role r = null;
         HashMap<Integer,Integer> amountOfRoles = new HashMap<Integer,Integer>();
+        Employee removeEmp=null;
+
 
         System.out.println("Enter start time: (HH:mm)");
         startTime = LocalTime.parse(sc.next(), timeFormatter);
@@ -139,14 +141,23 @@ public class ShiftMenu {
             return;
         }
         else{
+            //set manager
             manager = bl_impl.getEmployee(idOfEmpChosen);
-            //remove manager from avail employees
-            availableEmployees.remove(manager);
         }
 
+        //remove manager from avail employees
+        int empCounter=0; //use counter inorder to know which index in the vector to remove
+        for(Employee emp : availableEmployees){
+            if(emp.getId() == idOfEmpChosen)
+                availableEmployees.remove(empCounter);
+            empCounter++;
+        }
+
+        //remove all the managers from the available employees vector
         for(int f=0;availableEmployeesBasedOnRole.size()>0;f++){
             availableEmployeesBasedOnRole.remove(0);
         }
+
         //END GET MANAGER
 
 
@@ -212,7 +223,6 @@ public class ShiftMenu {
 
                     idOfEmpChosen = sc.nextInt();
                     boolean found = false;
-                    Employee removeEmp=null;
                     if (idOfEmpChosen != 0) {
                         for (Employee emp : availableEmployeesBasedOnRole) {
                             //have to check by ID and can't check by object because the DAL creates a new
@@ -233,6 +243,7 @@ public class ShiftMenu {
                         }
                         else{
                             availableEmployeesBasedOnRole.remove(removeEmp);
+                            availableEmployees.remove(removeEmp);
                         }
                     }
                     else {
@@ -246,8 +257,42 @@ public class ShiftMenu {
 
         //END INSERT ROLES (as PAIR(roleID, empID)) INTO SHIFT
 
-        bl_impl.insertShift(startTime, endTime, duration, date, manager, roles, amountOfRoles);
+        boolean result = bl_impl.insertShift(startTime, endTime, duration, date, manager, roles, amountOfRoles);
+        if(result){
+            System.out.println("Shift added successfully!");
+        }
+        else{
+            System.out.println("Failed to add shift");
+        }
 
+
+        /*insert shift into day*/
+        //check if day already exists
+        Day newDay = bl_impl.getDay(date);
+        if(newDay==null) {
+            if (startTime.getHour() < 12) {
+                //morning shift
+                newDay = new Day(bl_impl.getShift(1), null, date);
+                bl_impl.insertDay(newDay);
+            } else {
+                //evening shift
+                newDay = new Day(null, bl_impl.getShift(1), date);
+                bl_impl.insertDay(newDay);
+            }
+        }
+        //day exists so we will edit it
+        else{
+            if (startTime.getHour() < 12) {
+                //morning shift
+                newDay.setMorningShift(bl_impl.getShift(1));
+                bl_impl.updateDay(newDay);
+            }
+            else {
+                //evening shift
+                newDay.setEveningShift(bl_impl.getShift(1));
+                bl_impl.updateDay(newDay);
+            }
+        }
     }
 
     private static void editShift(){
@@ -257,18 +302,8 @@ public class ShiftMenu {
 
     }
 
-    private static void addDay(){
-
+    private static void displayShifts(){
 
 
     }
-
-
-
-
-
-
-
-
-
 }

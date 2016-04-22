@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.Locale;
 
 public class Day {
+
     private Shift morningShift;
     private Shift eveningShift;
     private LocalDate date;
@@ -32,5 +33,13 @@ public class Day {
 
     public String getDate() {
         return date.format(formatterDate);
+    }
+
+    public void setMorningShift(Shift morningShift) {
+        this.morningShift = morningShift;
+    }
+
+    public void setEveningShift(Shift eveningShift) {
+        this.eveningShift = eveningShift;
     }
 }

@@ -16,10 +16,10 @@ public interface IBL {
     boolean updateEmployee(String firstName, String lastName, int id, Vector<Role> roles, LocalDate dateOfHire, String contract, String bankAcct, int[][] ava);
     boolean deleteEmployee(Employee emp);
     boolean insertShift(LocalTime startTime, LocalTime endTime, int duration, LocalDate date, Employee manager, Vector<Pair> roles, HashMap<Integer,Integer> amountOfRoles);
-    boolean updateShift();
+    boolean updateShift(LocalTime startTime, LocalTime endTime, int duration, LocalDate date, Employee manager, Vector<Pair> roles, HashMap<Integer,Integer> amountOfRoles);
     boolean deleteShift(Shift s);
-    boolean insertDay();
-    boolean updateDay();
+    boolean insertDay(Day d);
+    boolean updateDay(Day d);
     boolean deleteDay(Day d);
     boolean insertRole(String name);
     boolean updateRole(int id, String name);

@@ -40,12 +40,20 @@ public class BL_IMPL implements IBL {
 
     @Override
     public boolean insertShift(LocalTime startTime, LocalTime endTime, int duration, LocalDate date, Employee manager, Vector<Pair> roles, HashMap<Integer,Integer> amountOfRoles){
-        Shift newShift = new Shift(SQLDAL.shiftID(), startTime, endTime, duration, date, manager, roles, amountOfRoles);
-        return SQLDAL.insert(newShift);
+        /*check that there is no shift in this date!*/
+        boolean valid = true;
+        if(!valid){
+            System.out.println("Shift already added for this date");
+            return false;
+        }
+        else{
+            Shift newShift = new Shift(SQLDAL.shiftID(), startTime, endTime, duration, date, manager, roles, amountOfRoles);
+            return SQLDAL.insert(newShift);
+        }
     }
 
     @Override
-    public boolean updateShift() {
+    public boolean updateShift(LocalTime startTime, LocalTime endTime, int duration, LocalDate date, Employee manager, Vector<Pair> roles, HashMap<Integer, Integer> amountOfRoles) {
         return false;
     }
 
@@ -55,12 +63,12 @@ public class BL_IMPL implements IBL {
     }
 
     @Override
-    public boolean insertDay() {
+    public boolean insertDay(Day d) {
         return false;
     }
 
     @Override
-    public boolean updateDay() {
+    public boolean updateDay(Day d) {
         return false;
     }
 

@@ -27,6 +27,7 @@ public class SQLiteDAL implements IDAL{
 
         }
         catch (Exception e){
+            System.out.println(e);
         }
     }
 
@@ -308,7 +309,7 @@ public class SQLiteDAL implements IDAL{
             stat.executeUpdate("DELETE FROM RolesOfEmployees WHERE EmployeeID = "+emp.getId());
             stat.close();
             for(Role role: emp.getRoles()){
-                if (!roleExists(emp.getId(),role,"rolesOfEmployees")){
+                if (!roleExists(emp.getId(),role,"rolesOfEmployees","EmployeeID")){
                     addRole(role.getID(),emp.getId());
                 }
             }
@@ -321,10 +322,10 @@ public class SQLiteDAL implements IDAL{
 
     }
 
-    private boolean roleExists(int ID,Role role,String table) throws SQLException{
+    private boolean roleExists(int ID,Role role,String table,String attribute) throws SQLException{
 
         String sql = "SELECT COUNT(*) FROM "+table+
-                " WHERE EmployeeID=? AND RoleID=?";
+                " WHERE "+attribute+"=? AND RoleID=?";
         PreparedStatement preStat = db.prepareStatement(sql);
         preStat.setInt(1,ID);
         preStat.setInt(2,role.getID());
@@ -339,7 +340,7 @@ public class SQLiteDAL implements IDAL{
         String sql = "INSERT INTO RolesOfShifts VALUES (?,?,?)";
         PreparedStatement preStat = db.prepareStatement(sql);
         for(Pair p: shift.getRoles()){
-            if(!(roleExists(shift.getID(),p.getRole(),"RolesOfShifts"))){
+            if(!(roleExists(shift.getID(),p.getRole(),"RolesOfShifts","ShiftID"))){
                 preStat.setInt(1,p.getRole().getID());
                 preStat.setInt(2,shift.getID());
                 preStat.setInt(3,shift.getAmountOfRoles().get(p.getRole().getID()));
