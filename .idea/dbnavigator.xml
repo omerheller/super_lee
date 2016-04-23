@@ -37,6 +37,7 @@
   <component name="DBNavigator.Project.DatasetFilterManager">
     <filter-list connection-id="f37f0fa2-7eac-4ae0-9e3e-9e2ca2557be6" dataset="main.Shifts" active-filter-id="EMPTY_FILTER" />
     <filter-list connection-id="f37f0fa2-7eac-4ae0-9e3e-9e2ca2557be6" dataset="main.Employees" active-filter-id="EMPTY_FILTER" />
+    <filter-list connection-id="f37f0fa2-7eac-4ae0-9e3e-9e2ca2557be6" dataset="main.EmployeeAvailability" active-filter-id="EMPTY_FILTER" />
     <filter-list connection-id="f37f0fa2-7eac-4ae0-9e3e-9e2ca2557be6" dataset="main.EmployeesInShifts" active-filter-id="EMPTY_FILTER" />
     <filter-list connection-id="f37f0fa2-7eac-4ae0-9e3e-9e2ca2557be6" dataset="main.RolesOfShifts" active-filter-id="EMPTY_FILTER" />
     <filter-list connection-id="f37f0fa2-7eac-4ae0-9e3e-9e2ca2557be6" dataset="main.Roles" active-filter-id="EMPTY_FILTER" />

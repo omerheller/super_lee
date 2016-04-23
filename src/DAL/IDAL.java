@@ -5,6 +5,7 @@ import BackEnd.*;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
@@ -24,6 +25,9 @@ public interface IDAL {
     boolean delete(Day day);
     boolean update(Day day);
     boolean addRole(int roleID, int empID);
+    boolean insertRole(Role role);
+    boolean updateRole(Role role, String name);
+    boolean deleteRole(Role role);
     Day getDay(LocalDate d);
     Shift getShift(int id);
     Employee getEmployee(int id);
@@ -33,6 +37,7 @@ public interface IDAL {
     int shiftID();
     int roleID();
     Vector<Employee> getAvailableEmployees(int[][] avail);
+    Shift getShift(LocalDate d, LocalTime startTime);
 
 
 

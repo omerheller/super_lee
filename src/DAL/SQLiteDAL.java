@@ -1,15 +1,12 @@
 package DAL;
 import java.sql.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.Date;
 
 
 import BackEnd.*;
-import org.omg.Messaging.SyncScopeHelper;
 import org.sqlite.SQLiteDataSource;
 
 public class SQLiteDAL implements IDAL{
@@ -30,7 +27,11 @@ public class SQLiteDAL implements IDAL{
             System.out.println(e);
         }
     }
-
+    /*
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////// ROLE FUNCTIONS
+*/
 
     public boolean addRole(int roleID, int empID){
         try{
@@ -47,6 +48,72 @@ public class SQLiteDAL implements IDAL{
         }
     }
 
+    @Override
+    public boolean insertRole(Role role) {
+        try{
+            String sql = "INSERT INTO Roles " +
+                    "VALUES (?,?,?)";
+            PreparedStatement preStat = db.prepareStatement(sql);
+            preStat.setInt(1,role.getID());
+            preStat.setString(2,role.getName());
+            preStat.setInt(3,0);
+            int rows = preStat.executeUpdate();
+            preStat.close();
+            return rows==1;
+        }
+        catch(Exception e){
+            System.out.println(e);
+            return false;
+        }
+    }
+
+    @Override
+    public boolean updateRole(Role role, String name) {
+        try{
+            String sql = "UPDATE Roles " +
+                    "SET Name="+role.getName()+" " +
+                    "WHERE ID="+role.getID();
+            stat = db.createStatement();
+            int rows = stat.executeUpdate(sql);
+            stat.close();
+            return rows==1;
+        }
+        catch(Exception e){
+            System.out.println(e);
+            return false;
+        }
+    }
+
+    @Override
+    public boolean deleteRole(Role role) {
+        try{
+            String sql = "UPDATE Roles " +
+                    "SET Deleted=1 " +
+                    "WHERE ID="+role.getID();
+            stat = db.createStatement();
+            int rows = stat.executeUpdate(sql);
+            stat.close();
+            return rows==1;
+        }
+        catch(Exception e){
+            System.out.println(e);
+            return false;
+        }
+    }
+
+    /*
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////// END OF ROLE FUNCTIONS
+*/
+
+
+
+    /*
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////// DAY FUNCTIONS
+*/
     @Override
     public Day getDay(LocalDate d) {
         ResultSet set = getListByID("Days","Date",d.toString());
@@ -65,6 +132,85 @@ public class SQLiteDAL implements IDAL{
 
     }
 
+    @Override
+    public boolean insert(Day day) {
+        try{
+            String sql = "INSERT INTO Days VALUES (?,?,?,?)";
+            PreparedStatement preStat = db.prepareStatement(sql);
+            preStat.setString(1,day.getDate());
+            preStat.setInt(2,day.getMorningShift().getID());
+            preStat.setInt(3,day.getEveningShift().getID());
+            preStat.setInt(4,0);
+            int rows = preStat.executeUpdate();
+            preStat.close();
+            return rows==1;
+        }
+        catch (SQLException e){
+            return false;
+        }
+    }
+
+    @Override
+    public boolean delete(Day day) {
+        try{
+            stat = db.createStatement();
+            int rows = stat.executeUpdate("UPDATE Days SET Deleted=1 WHERE Date="+day.getDate());
+            stat.close();
+            return rows==1;
+        }
+        catch (SQLException e){
+            return false;
+        }
+    }
+
+    @Override
+    public boolean update(Day day) {
+        try {
+            String sql = "UPDATE Days " +
+                    "SET Morning_Shift=?, Evening_Shift=? " +
+                    "WHERE Date=?";
+            PreparedStatement preStat = db.prepareStatement(sql);
+            preStat.setInt(1,day.getMorningShift().getID());
+            preStat.setInt(2,day.getEveningShift().getID());
+            preStat.setString(3,day.getDate());
+            int rows = preStat.executeUpdate();
+            preStat.close();
+            return rows==1;
+        }
+        catch (SQLException e){
+            return false;
+        }
+    }
+
+    /**
+     * used to get the next shiftID
+     * @return the shift id or -1 if there was an error
+     */
+    public int shiftID(){
+        try {
+            stat = db.createStatement();
+            String sql = "SELECT COUNT(*) FROM Shifts";
+            ResultSet set = stat.executeQuery(sql);
+            int count = set.getInt(1);
+            set.close();
+            stat.close();
+            return count;
+        }catch (SQLException e){
+            return -1;
+        }
+    }
+
+        /*
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////// END OF DAY FUNCTIONS
+*/
+
+    /*
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////// SHIFT FUNCTIONS
+*/
     @Override
     public Shift getShift(int id) {
         String value = Integer.toString(id);
@@ -131,6 +277,117 @@ public class SQLiteDAL implements IDAL{
         }
         return vec;
     }
+
+    private void insertRolesOfShifts(Shift shift) throws SQLException{
+        String sql = "INSERT INTO RolesOfShifts VALUES (?,?,?)";
+        PreparedStatement preStat = db.prepareStatement(sql);
+        for(Pair p: shift.getRoles()){
+            if(!(roleExists(shift.getID(),p.getRole(),"RolesOfShifts","ShiftID"))){
+                preStat.setInt(1,p.getRole().getID());
+                preStat.setInt(2,shift.getID());
+                preStat.setInt(3,shift.getAmountOfRoles().get(p.getRole().getID()));
+                preStat.executeUpdate();
+                preStat.clearParameters();
+            }
+        }
+        preStat.close();
+    }
+    private void insertEmployeesOfShifts(Shift shift) throws SQLException{
+        String sql = "INSERT INTO EmployeesInShifts VALUES (?,?,?)";
+        PreparedStatement preStat = db.prepareStatement(sql);
+        for(Pair p: shift.getRoles()){
+            if(p.getEmployee()!=null){
+                preStat.setInt(2,shift.getID());
+                preStat.setInt(1,p.getEmployee().getId());
+                preStat.setInt(3,p.getRole().getID());
+                preStat.executeUpdate();
+                preStat.clearParameters();
+            }
+        }
+        preStat.close();
+    }
+    @Override
+    public boolean insert(Shift shift) {
+        try {
+            String sql = "INSERT INTO Shifts VALUES (?,?,?,?,?,?,?)";
+            PreparedStatement preStat = db.prepareStatement(sql);
+            preStat.setInt(1, shift.getID());
+            preStat.setString(2, shift.getStartTime());
+            preStat.setString(3, shift.getEndTime());
+            preStat.setInt(4, shift.getDuration());
+            preStat.setString(5, shift.getDate());
+            preStat.setInt(6, shift.getManager().getId());
+            preStat.setInt(7, 0);
+            preStat.executeUpdate();
+            preStat.close();
+            insertRolesOfShifts(shift);
+            insertEmployeesOfShifts(shift);
+            return true;
+        }
+        catch (SQLException e){
+            return false;
+        }
+    }
+
+    @Override
+    public boolean delete(Shift shift) {
+        String sql = "UPDATE Shifts\n" +
+                "SET Deleted = 1\n"+
+                "WHERE ID = "+shift.getID()+";";
+        try {
+            Statement stat = db.createStatement();
+            int rows = stat.executeUpdate(sql);
+            return rows>0;
+
+        }catch (Exception e){
+            return false;
+        }
+    }
+
+    @Override
+    public boolean update(Shift shift) {
+        String sql = "UPDATE Shifts " +
+                "SET Date=? , Duration=? , End_Time= ? , Start_Time=?, ManagerID=?" +
+                "WHERE ID=?";
+        try {
+            PreparedStatement preStat = db.prepareStatement(sql);
+            preStat.setInt(6, shift.getID());
+            preStat.setString(4, shift.getStartTime());
+            preStat.setString(3, shift.getEndTime());
+            preStat.setInt(2, shift.getDuration());
+            preStat.setString(1, shift.getDate());
+            preStat.setInt(5, shift.getManager().getId());
+            preStat.executeUpdate();
+            stat = db.createStatement();
+            stat.executeUpdate("DELETE FROM RolesOfShifts" +
+                    "WHERE ShiftID="+shift.getID());
+            stat.close();
+            insertRolesOfShifts(shift);
+            stat = db.createStatement();
+            stat.executeUpdate("DELETE FROM EmployeesInShifts" +
+                    "WHERE ShiftID="+shift.getID());
+            stat.close();
+            insertEmployeesOfShifts(shift);
+            return true;
+        }
+        catch(SQLException e){
+            return false;
+        }
+    }
+
+
+        /*
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////// END OF SHIFT FUNCTIONS
+*/
+
+
+    /*
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////// EMPLOYEE FUNCTIONS
+*/
     @Override
     public Employee getEmployee(int id) {
         try{
@@ -246,7 +503,7 @@ public class SQLiteDAL implements IDAL{
 
     private boolean employeeAvailability(Employee emp){
         try {
-            String sql = "INSERT INTO EmployeeAvailability VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ;";
+            String sql = "INSERT INTO EmployeeAvailability VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ;";
             PreparedStatement preparedStatement =
                     db.prepareStatement(sql);
             preparedStatement.setInt(1, emp.getId());
@@ -257,6 +514,7 @@ public class SQLiteDAL implements IDAL{
                     counter++;
                 }
             }
+            preparedStatement.setInt(16,0);//Deleted attribute
             int rows = preparedStatement.executeUpdate();
             preparedStatement.close();
             return rows==1;
@@ -322,6 +580,13 @@ public class SQLiteDAL implements IDAL{
 
     }
 
+
+        /*
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////// END OF EMPLOYEE FUNCTIONS
+*/
+
     private boolean roleExists(int ID,Role role,String table,String attribute) throws SQLException{
 
         String sql = "SELECT COUNT(*) FROM "+table+
@@ -336,169 +601,7 @@ public class SQLiteDAL implements IDAL{
         return count>0;
     }
 
-    private void insertRolesOfShifts(Shift shift) throws SQLException{
-        String sql = "INSERT INTO RolesOfShifts VALUES (?,?,?)";
-        PreparedStatement preStat = db.prepareStatement(sql);
-        for(Pair p: shift.getRoles()){
-            if(!(roleExists(shift.getID(),p.getRole(),"RolesOfShifts","ShiftID"))){
-                preStat.setInt(1,p.getRole().getID());
-                preStat.setInt(2,shift.getID());
-                preStat.setInt(3,shift.getAmountOfRoles().get(p.getRole().getID()));
-                preStat.executeUpdate();
-                preStat.clearParameters();
-            }
-        }
-        preStat.close();
-    }
-    private void insertEmployeesOfShifts(Shift shift) throws SQLException{
-        String sql = "INSERT INTO EmployeesInShifts VALUES (?,?,?)";
-        PreparedStatement preStat = db.prepareStatement(sql);
-        for(Pair p: shift.getRoles()){
-            if(p.getEmployee()!=null){
-                preStat.setInt(2,shift.getID());
-                preStat.setInt(1,p.getEmployee().getId());
-                preStat.setInt(3,p.getRole().getID());
-                preStat.executeUpdate();
-                preStat.clearParameters();
-            }
-        }
-        preStat.close();
-    }
-    @Override
-    public boolean insert(Shift shift) {
-        try {
-            String sql = "INSERT INTO Shifts VALUES (?,?,?,?,?,?,?)";
-            PreparedStatement preStat = db.prepareStatement(sql);
-            preStat.setInt(1, shift.getID());
-            preStat.setString(2, shift.getStartTime());
-            preStat.setString(3, shift.getEndTime());
-            preStat.setInt(4, shift.getDuration());
-            preStat.setString(5, shift.getDate());
-            preStat.setInt(6, shift.getManager().getId());
-            preStat.setInt(7, 0);
-            preStat.executeUpdate();
-            preStat.close();
-            insertRolesOfShifts(shift);
-            insertEmployeesOfShifts(shift);
-            return true;
-        }
-        catch (SQLException e){
-            return false;
-        }
-    }
 
-    @Override
-    public boolean delete(Shift shift) {
-        String sql = "UPDATE Shifts\n" +
-                "SET Deleted = 1\n"+
-                "WHERE ID = "+shift.getID()+";";
-        try {
-            Statement stat = db.createStatement();
-            int rows = stat.executeUpdate(sql);
-            return rows>0;
-
-        }catch (Exception e){
-            return false;
-        }
-    }
-
-    @Override
-    public boolean update(Shift shift) {
-        String sql = "UPDATE Shifts " +
-                "SET Date=? , Duration=? , End_Time= ? , Start_Time=?, ManagerID=?" +
-                "WHERE ID=?";
-        try {
-            PreparedStatement preStat = db.prepareStatement(sql);
-            preStat.setInt(6, shift.getID());
-            preStat.setString(4, shift.getStartTime());
-            preStat.setString(3, shift.getEndTime());
-            preStat.setInt(2, shift.getDuration());
-            preStat.setString(1, shift.getDate());
-            preStat.setInt(5, shift.getManager().getId());
-            preStat.executeUpdate();
-            stat = db.createStatement();
-            stat.executeUpdate("DELETE FROM RolesOfShifts" +
-                               "WHERE ShiftID="+shift.getID());
-            stat.close();
-            insertRolesOfShifts(shift);
-            stat = db.createStatement();
-            stat.executeUpdate("DELETE FROM EmployeesInShifts" +
-                    "WHERE ShiftID="+shift.getID());
-            stat.close();
-            insertEmployeesOfShifts(shift);
-            return true;
-        }
-        catch(SQLException e){
-            return false;
-        }
-    }
-
-    @Override
-    public boolean insert(Day day) {
-        try{
-            String sql = "INSERT INTO Days VALUES (?,?,?)";
-            PreparedStatement preStat = db.prepareStatement(sql);
-            preStat.setString(1,day.getDate());
-            preStat.setInt(2,day.getMorningShift().getID());
-            preStat.setInt(3,day.getEveningShift().getID());
-            int rows = preStat.executeUpdate();
-            preStat.close();
-            return rows==1;
-        }
-        catch (SQLException e){
-            return false;
-        }
-    }
-
-    @Override
-    public boolean delete(Day day) {
-        try{
-            stat = db.createStatement();
-            int rows = stat.executeUpdate("DELETE FROM Days WHERE Date="+day.getDate());
-            stat.close();
-            return rows==1;
-        }
-        catch (SQLException e){
-            return false;
-        }
-    }
-
-    @Override
-    public boolean update(Day day) {
-        try {
-            String sql = "UPDATE Days " +
-                    "SET Morning_Shift=?, Evening_Shift=? " +
-                    "WHERE Date=?";
-            PreparedStatement preStat = db.prepareStatement(sql);
-            preStat.setInt(1,day.getMorningShift().getID());
-            preStat.setInt(2,day.getEveningShift().getID());
-            preStat.setString(3,day.getDate());
-            int rows = preStat.executeUpdate();
-            preStat.close();
-            return rows==1;
-        }
-        catch (SQLException e){
-            return false;
-        }
-    }
-
-    /**
-     * used to get the next shiftID
-     * @return the shift id or -1 if there was an error
-     */
-    public int shiftID(){
-        try {
-            stat = db.createStatement();
-            String sql = "SELECT COUNT(*) FROM Shifts";
-            ResultSet set = stat.executeQuery(sql);
-            int count = set.getInt(1);
-            set.close();
-            stat.close();
-            return count;
-        }catch (SQLException e){
-            return -1;
-        }
-    }
 
     /**
      * used to get the next RoleID
@@ -512,7 +615,7 @@ public class SQLiteDAL implements IDAL{
             int count = set.getInt(1);
             set.close();
             stat.close();
-            return count;
+            return count+1;
         }catch (SQLException e){
             System.out.println(e);
             return -1;
@@ -520,7 +623,7 @@ public class SQLiteDAL implements IDAL{
     }
 
     private boolean connected() {
-        dataSource.setUrl("jdbc:sqlite:C:/Users/matan/IdeaProjects/super_lee/superlee");
+        dataSource.setUrl("jdbc:sqlite:superlee");
         return true;
 
     }
@@ -529,7 +632,6 @@ public class SQLiteDAL implements IDAL{
         try {
 
             ResultSet set = getListByID("Roles", null, null);
-            //set.first();
             while(set.next()){
                 if(set.getInt("Deleted")==0) {
                     Role role = new Role(set.getInt(1), set.getString(2));
@@ -553,9 +655,10 @@ public class SQLiteDAL implements IDAL{
     }
 
     private ResultSet getListByID(String table,String attribute,String value){
-        String sql = "SELECT * FROM "+table+" ";
+        String sql = "SELECT * FROM "+table+" " +
+                "WHERE Deleted=0";
         if (attribute!=null)
-                    sql += "WHERE "+attribute+"="+value;
+                    sql += " AND "+attribute+"="+value;
         try {
             stat = db.createStatement();
             ResultSet set = stat.executeQuery(sql);
@@ -599,5 +702,22 @@ public class SQLiteDAL implements IDAL{
 
         }
         return employees;
+    }
+
+    @Override
+    public Shift getShift(LocalDate d, LocalTime startTime) {
+        try{
+            stat = db.createStatement();
+            ResultSet set = stat.executeQuery("SELECT ID FROM Shifts " +
+                    "WHERE Date="+d+" AND StartTime="+startTime );
+            int id = set.getInt("ID");
+            set.close();
+            stat.close();
+            Shift shift = getShift(id);
+            return shift;
+        }
+        catch (SQLException e){
+            return null;
+        }
     }
 }

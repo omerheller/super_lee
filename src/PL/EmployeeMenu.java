@@ -18,17 +18,10 @@ public class EmployeeMenu {
     private static String[][] days = new String[2][7];
 
     public static void run(){
-        int lineIndex =1;
         Scanner sc = new Scanner(System.in);
         boolean switchCase = false;
 
-        //fill in the rolesDicationary
-        if(bl_impl.getRoles().size()>0) {
-            for (Role r : bl_impl.getRoles()) {
-                rolesDictionary.put(r.getID(), r);
-                //lineIndex++;
-            }
-        }
+        fillRoles();
 
         /*initialize days strings*/
         days[0][0]="Sunday Morning:"; days[1][0]="Sunday Evening:";
@@ -105,9 +98,10 @@ public class EmployeeMenu {
             System.out.println("Choose a role to add, Press 0 if finished:");
 
             //print the roles available
-            for(z=1;z<=rolesDictionary.size();z++){
-                System.out.println(z+ ": " + rolesDictionary.get(z).getName());
+            for(Role r: rolesDictionary.values()){
+                System.out.println(r.getID()+ ": " + r.getName());
             }
+
             roleChosen = sc.nextInt();
 
             if (roleChosen==0){
@@ -260,7 +254,7 @@ public class EmployeeMenu {
                         if (roleChosen==0){
                             finishedRoles = true;
                         }
-                        else if(roleChosen>0 && roleChosen<=rolesDictionary.size()){ //make sure choice is valid
+                        else if(rolesDictionary.containsKey(roleChosen)){ //make sure choice is valid
                             //remove from the employee's roles vector
                             System.out.println(emp.getRoles().get(roleChosen-1).getName() + " removed." );
                             emp.getRoles().remove(roleChosen-1);
@@ -278,15 +272,15 @@ public class EmployeeMenu {
                         System.out.println("Choose a role to add, Press 0 if finished:");
 
                         //print the roles available
-                        for(z=1;z<=rolesDictionary.size();z++){
-                            System.out.println(rolesDictionary.get(z).getID()+ ": " + rolesDictionary.get(z).getName());
+                        for(Role r: rolesDictionary.values()){
+                            System.out.println(r.getID()+ ": " + r.getName());
                         }
                         roleChosen = sc.nextInt();
 
                         if (roleChosen==0){
                             finishedRoles = true;
                         }
-                        else if(roleChosen>0 && roleChosen<=rolesDictionary.size()){ //make sure choice is valid
+                        else if(rolesDictionary.containsKey(roleChosen)){ //make sure choice is valid
                             //if emp doesn't have the chosen role add to his roles vector
                             if(!emp.getRoles().contains(rolesDictionary.get(roleChosen))){
                                 emp.getRoles().add(rolesDictionary.get(roleChosen));
@@ -321,6 +315,7 @@ public class EmployeeMenu {
         System.out.println("Please insert role name:");
         name = sc.next();
         bl_impl.insertRole(name);
+        fillRoles();
     }
 
     private static void editRole(){
@@ -329,13 +324,15 @@ public class EmployeeMenu {
         System.out.println("Choose role:");
 
         //print the roles available
-        for(z=1;z<=rolesDictionary.size();z++){
-            System.out.println(z+ ": " + rolesDictionary.get(z).getName());
+        for(Role r: rolesDictionary.values()){
+            System.out.println(r.getID()+ ": " + r.getName());
         }
+
+
         //chose which role from the list
         roleChosen = sc.nextInt();
 
-        if(roleChosen>0 && roleChosen<=rolesDictionary.size()){   //make sure choice is valid
+        if(rolesDictionary.containsKey(roleChosen)){ //make sure choice is valid
             System.out.println("To delete role press 1, to edit press 0:");
             delete = sc.nextInt();
 
@@ -349,9 +346,21 @@ public class EmployeeMenu {
                     //delete role
                     bl_impl.deleteRole(rolesDictionary.get(roleChosen));
             }
+            //update roles dictionary
+            fillRoles();
         }
         else {
             System.out.println("Try again..");
+        }
+    }
+
+    private static void fillRoles(){
+        //fill in the rolesDicationary
+        if(bl_impl.getRoles().size()>0) {
+            for (Role r : bl_impl.getRoles()) {
+                rolesDictionary.put(r.getID(), r);
+                //lineIndex++;
+            }
         }
     }
 }

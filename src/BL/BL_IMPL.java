@@ -80,22 +80,22 @@ public class BL_IMPL implements IBL {
     @Override
     public boolean insertRole(String name) {
         //check valid name
-
-        //return SQLDAL.addRole(name);
-        return false;
+        //use the func SQLDAL.roleID() to get the id of the next role and send
+        // it to SQLDAL as a ROLE and not a STRING
+        Role role = new Role(SQLDAL.roleID(),name);
+        System.out.println(role.getID());
+        return SQLDAL.insertRole(role);
     }
 
     @Override
     public boolean updateRole(int id, String name) {
         Role updateRole = new Role(id, name);
-        //return SQLDAL.updateRole(updateRole);
-        return false;
+        return SQLDAL.updateRole(updateRole, name);
     }
 
     @Override
     public boolean deleteRole(Role r) {
-        //return SQLDAL.deleteRole(name);
-        return false;
+        return SQLDAL.deleteRole(r);
     }
 
     @Override
