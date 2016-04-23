@@ -26,10 +26,12 @@ public interface IBL {
     boolean deleteRole(Role r);
     Day getDay(LocalDate d);
     Shift getShift(int id);
+    Shift getShift(LocalDate d, LocalTime startTime);
     Employee getEmployee(int id);
     Role getRole(int id);
     Vector<Role> getRoles();
     Vector<Employee> getEmployees();
+
 
 
     /**here i will send in the arguements a shift

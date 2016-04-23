@@ -269,29 +269,37 @@ public class ShiftMenu {
         /*insert shift into day*/
         //check if day already exists
         Day newDay = bl_impl.getDay(date);
-        if(newDay==null) {
+        if(newDay==null) { //day doesn't exist, which means that this is the first shift created for this date so we will create the day
             if (startTime.getHour() < 12) {
                 //morning shift
-                newDay = new Day(bl_impl.getShift(1), null, date);
-                bl_impl.insertDay(newDay);
-            } else {
-                //evening shift
-                newDay = new Day(null, bl_impl.getShift(1), date);
-                bl_impl.insertDay(newDay);
-            }
-        }
-        //day exists so we will edit it
-        else{
-            if (startTime.getHour() < 12) {
-                //morning shift
-                newDay.setMorningShift(bl_impl.getShift(1));
-                bl_impl.updateDay(newDay);
+                newDay = new Day(bl_impl.getShift(date, startTime), null, date);
+                result = bl_impl.insertDay(newDay);
             }
             else {
                 //evening shift
-                newDay.setEveningShift(bl_impl.getShift(1));
-                bl_impl.updateDay(newDay);
+                newDay = new Day(null, bl_impl.getShift(date, startTime), date);
+                result = bl_impl.insertDay(newDay);
             }
+        }
+        //day exists so we will edit it based on shift created now
+        else{
+            if (startTime.getHour() < 12) {
+                //morning shift
+                newDay.setMorningShift(bl_impl.getShift(date, startTime));
+                result = bl_impl.updateDay(newDay);
+            }
+            else {
+                //evening shift
+                newDay.setEveningShift(bl_impl.getShift(date, startTime));
+                result = bl_impl.updateDay(newDay);
+            }
+        }
+
+        if(result){
+            System.out.println("Day added successfully!");
+        }
+        else{
+            System.out.println("Failed to add day");
         }
     }
 

@@ -79,17 +79,22 @@ public class BL_IMPL implements IBL {
 
     @Override
     public boolean insertRole(String name) {
+        //check valid name
+
         //return SQLDAL.addRole(name);
         return false;
     }
 
     @Override
     public boolean updateRole(int id, String name) {
+        Role updateRole = new Role(id, name);
+        //return SQLDAL.updateRole(updateRole);
         return false;
     }
 
     @Override
     public boolean deleteRole(Role r) {
+        //return SQLDAL.deleteRole(name);
         return false;
     }
 
@@ -101,6 +106,11 @@ public class BL_IMPL implements IBL {
     @Override
     public Shift getShift(int id) {
         return SQLDAL.getShift(id);
+    }
+
+    @Override
+    public Shift getShift(LocalDate d, LocalTime startTime) {
+        return null;
     }
 
     @Override
