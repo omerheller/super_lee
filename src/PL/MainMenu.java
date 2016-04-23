@@ -16,20 +16,22 @@ public class MainMenu {
         boolean switchCase = false;
 
         System.out.println("Super-Lee Management Application");
-        System.out.println("Please choose desired menu:");
-        System.out.println("1. Employee Menu");
-        System.out.println("2. Shifts Menu");
-
-        while(!switchCase) {
-            int i = sc.nextInt();
+        int i= 1;
+        while(i!=0) {
+            System.out.println("Please choose desired menu:");
+            System.out.println("1. Employee Menu");
+            System.out.println("2. Shifts Menu");
+            System.out.println("0 To Exit");
+            i = sc.nextInt();
             switch (i) {
+                case 0:
+                    System.out.println("Exiting..");
+                    break;
                 case 1:
                     EmployeeMenu.run();
-                    switchCase=true;
                     break;
                 case 2:
                     ShiftMenu.run();
-                    switchCase=true;
                     break;
                 default:
                     System.out.println("Try again..");
