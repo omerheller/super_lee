@@ -134,6 +134,11 @@ public class BL_IMPL implements IBL {
     }
 
     @Override
+    public boolean idExists(int id) {
+        return SQLDAL.idExists(id);
+    }
+
+    @Override
     public Vector<Employee> getAvailableEmployees(int[][] avail) {
         return SQLDAL.getAvailableEmployees(avail);
     }

@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Locale;
+import PL.MainMenu;
 
 public class Day {
 
@@ -41,5 +42,35 @@ public class Day {
 
     public void setEveningShift(Shift eveningShift) {
         this.eveningShift = eveningShift;
+    }
+
+    public void print(){
+        System.out.print(MainMenu.ANSI_REDBG+"\t\t\t\t"+MainMenu.ANSI_RESET);
+        System.out.print(MainMenu.ANSI_BOLD+" "+date.getDayOfWeek()+" "+MainMenu.ANSI_RESET);
+        System.out.println(MainMenu.ANSI_REDBG+"\t\t\t\t  "+MainMenu.ANSI_RESET);
+        System.out.println("Date: "+date.format(formatterDate));
+        System.out.println(MainMenu.ANSI_BOLD+"\t\t\tMorning Shift: "+MainMenu.ANSI_RESET);
+        if(morningShift!=null){
+            morningShift.print();
+        }
+        else{
+
+            System.out.println("");
+            System.out.println("\t\t\tNo Morning Shift Set");
+            System.out.println("");
+            System.out.println("");
+        }
+        System.out.println(MainMenu.ANSI_BOLD+"\t\t\tEvening Shift: "+MainMenu.ANSI_RESET);
+        if(eveningShift!=null){
+            eveningShift.print();
+        }
+        else{
+            System.out.println("");
+            System.out.println("\t\t\tNo Evening Shift Set");
+
+            System.out.println("");
+            System.out.println("");
+        }
+        System.out.println(MainMenu.ANSI_REDBG+"\t\t\t\t\t\t\t\t\t\t  "+MainMenu.ANSI_RESET);
     }
 }

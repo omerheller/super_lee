@@ -35,7 +35,8 @@ public class ShiftMenu {
         System.out.println("Welcome to Shift menu");
         System.out.println("1. Add Shift");
         System.out.println("2. Edit/Delete Shift");
-        System.out.println("3. Display shifts");
+        System.out.println("3. Display shift");
+        System.out.println("4. Display week");
 
         while(!switchCase) {
             int i = sc.nextInt();
@@ -52,6 +53,10 @@ public class ShiftMenu {
                     displayShifts();
                     switchCase=true;
                     break;
+                case 4:
+                    displayWeek();
+                    switchCase=true;
+                    break;
                 default:
                     System.out.println("Try again..");
                     break;
@@ -62,8 +67,8 @@ public class ShiftMenu {
     private static void addShift(){
         int duration, day, roleChosen, numOfEmployees=0, counter=0, z, idOfEmpChosen=0;
         Employee empChosen=null, manager=null;
-        Vector<Employee> availableEmployees= new Vector<Employee>();
-        Vector<Employee> availableEmployeesBasedOnRole= new Vector<Employee>();
+        Vector<Employee> availableEmployees= new Vector<>();
+        Vector<Employee> availableEmployeesBasedOnRole= new Vector<>();
         int[][] shift = new int[1][2]; //based on date and starttime, shows which shift in the availability array of each employee
         LocalTime startTime, endTime;
         LocalDate date;
@@ -81,7 +86,7 @@ public class ShiftMenu {
         endTime = LocalTime.parse(sc.next(), timeFormatter);
 
         //calculate duration
-        duration=0;
+        duration=endTime.getHour()-startTime.getHour();
         //
 
 
@@ -304,14 +309,91 @@ public class ShiftMenu {
     }
 
     private static void editShift(){
+        System.out.println("Enter Date of Shift(dd/mm/yyyy)");
+        LocalDate date;
+        while(true){
+            try{
+                date = LocalDate.parse(sc.next(),dateFormatter);
+                break;
+            }
+            catch(Exception e){
+                System.out.println(MainMenu.ANSI_BOLD+MainMenu.ANSI_RED+"BAD INPUT"+MainMenu.ANSI_RESET);
+                System.out.println("Please try again.");
+            }
+        }
+        System.out.println("Enter Start Time of Shift(HH:mm)");
+        LocalTime startTime;
+        while(true){
+            try{
+                startTime = LocalTime.parse(sc.next(),timeFormatter);
+                break;
+            }
+            catch(Exception e){
+                System.out.println(MainMenu.ANSI_BOLD+MainMenu.ANSI_RED+"BAD INPUT"+MainMenu.ANSI_RESET);
+                System.out.println("Please try again.");
+            }
+        }
+        Shift shift = bl_impl.getShift(date,startTime);
+        if(shift==null){
+            System.out.println("Shift with given attributes was not found in db ");
+        }
+        else{
 
+        }
+    }
 
-
+    private static void displayWeek(){
+        System.out.println("Choose a Week to display(dd/mm/yyyy)");
+        LocalDate date;
+        while(true){
+            try{
+                date = LocalDate.parse(sc.next(),dateFormatter);
+                break;
+            }
+            catch(Exception e){
+                System.out.println(MainMenu.ANSI_BOLD+MainMenu.ANSI_RED+"BAD INPUT"+MainMenu.ANSI_RESET);
+                System.out.println("Please try again.");
+            }
+        }
+        for(int i=0;i<7;i++) {
+            Day day = bl_impl.getDay(date);
+            System.out.println(MainMenu.ANSI_BLUEBG+"\t\t\t\t\t\t\t\t\t\t  "+MainMenu.ANSI_RESET);
+            if (day != null) {
+                day.print();
+            } else {
+                System.out.print(MainMenu.ANSI_REDBG+"\t\t\t\t"+MainMenu.ANSI_RESET);
+                System.out.print(MainMenu.ANSI_BOLD+" "+date.getDayOfWeek()+" "+MainMenu.ANSI_RESET);
+                System.out.println(MainMenu.ANSI_REDBG+"\t\t\t\t  "+MainMenu.ANSI_RESET);
+                System.out.println("Day Not Found For " + date.format(dateFormatter));
+            }
+            System.out.println(MainMenu.ANSI_BLUEBG+"\t\t\t\t\t\t\t\t\t\t  "+MainMenu.ANSI_RESET);
+            System.out.println("");
+            date = date.plusDays(1);
+        }
 
     }
 
-    private static void displayShifts(){
 
+    private static void displayShifts(){
+        System.out.println("Choose a Date to display(dd/mm/yyyy)");
+        LocalDate date;
+        while(true){
+            try{
+                date = LocalDate.parse(sc.next(),dateFormatter);
+                break;
+            }
+            catch(Exception e){
+                System.out.println(MainMenu.ANSI_BOLD+MainMenu.ANSI_RED+"BAD INPUT"+MainMenu.ANSI_RESET);
+                System.out.println("Please try again.");
+            }
+        }
+        Day day = bl_impl.getDay(date);
+        if (day!=null){
+            day.print();
+        }
+        else{
+            System.out.println("No Shifts Found For "+date.format(dateFormatter));
+        }
 
     }
 }

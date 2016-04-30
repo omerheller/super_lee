@@ -31,6 +31,7 @@ public interface IBL {
     Role getRole(int id);
     Vector<Role> getRoles();
     Vector<Employee> getEmployees();
+    boolean idExists(int id);
 
 
 

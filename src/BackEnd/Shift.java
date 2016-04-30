@@ -80,5 +80,25 @@ public class Shift {
         return false;
     }
 
+    public void print(){
+        System.out.print("ID: ");
+        System.out.println(ID);
+        System.out.print("Start Time: ");
+        System.out.println(startTime);
+        System.out.print("End Time: ");
+        System.out.println(endTime);
+        System.out.print("Duration: ");
+        System.out.println(duration);
+        System.out.print("Manager: ");
+        System.out.println(manager.getFirstName()+" "+manager.getLastName());
+        System.out.println("Employees On Shift: ");
+        for(Pair pair : roles){
+            System.out.print("\t\tPosition: ");
+            System.out.print(pair.getRole().getName());
+            System.out.print("\t\tEmployee: ");
+            System.out.println(pair.getEmployee().getFirstName()+" "+pair.getEmployee().getLastName());
+        }
+    }
+
 
 }

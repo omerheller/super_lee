@@ -3,6 +3,8 @@
     <properties maven-id="org.xerial:sqlite-jdbc:3.8.11.2" />
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/lib/sqlite-jdbc-3.8.11.2.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/JCDP-1.25-win/JCDP-1.25-win.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/JCDP-1.25-win/jansi-1.4.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
