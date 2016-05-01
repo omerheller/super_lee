@@ -150,8 +150,20 @@ public class SQLiteDAL implements IDAL{
             String sql = "INSERT INTO Days VALUES (?,?,?,?)";
             PreparedStatement preStat = db.prepareStatement(sql);
             preStat.setString(1,day.getDate());
-            preStat.setInt(2,day.getMorningShift().getID());
-            preStat.setInt(3,day.getEveningShift().getID());
+            if(day.getMorningShift()!=null){
+                preStat.setInt(2, day.getMorningShift().getID());
+            }
+            else{
+                preStat.setInt(2, -1);
+            }
+
+            if(day.getEveningShift()!=null){
+                preStat.setInt(3, day.getEveningShift().getID());
+            }
+            else{
+                preStat.setInt(3, -1);
+            }
+
             preStat.setInt(4,0);
             int rows = preStat.executeUpdate();
             preStat.close();
@@ -179,12 +191,11 @@ public class SQLiteDAL implements IDAL{
     public boolean update(Day day) {
         try {
             String sql = "UPDATE Days " +
-                    "SET Morning_Shift=?, Evening_Shift=? " +
-                    "WHERE Date=?";
+                    "SET MorningShift=?, EveningShift=? " +
+                    "WHERE Date='"+day.getDate()+"'";
             PreparedStatement preStat = db.prepareStatement(sql);
             preStat.setInt(1,day.getMorningShift().getID());
             preStat.setInt(2,day.getEveningShift().getID());
-            preStat.setString(3,day.getDate());
             int rows = preStat.executeUpdate();
             preStat.close();
             return rows==1;
@@ -359,7 +370,7 @@ public class SQLiteDAL implements IDAL{
     @Override
     public boolean update(Shift shift) {
         String sql = "UPDATE Shifts " +
-                "SET Date=? , Duration=? , End_Time= ? , Start_Time=?, ManagerID=?" +
+                "SET Date=? , Duration=? , EndTime= ? , StartTime=?, ManagerID=?" +
                 "WHERE ID=?";
         try {
             PreparedStatement preStat = db.prepareStatement(sql);
@@ -372,11 +383,11 @@ public class SQLiteDAL implements IDAL{
             preStat.executeUpdate();
             stat = db.createStatement();
             stat.executeUpdate("DELETE FROM RolesOfShifts" +
-                    "WHERE ShiftID="+shift.getID());
+                    " WHERE ShiftID="+shift.getID());
             stat.close();
             insertRolesOfShifts(shift);
             stat = db.createStatement();
-            stat.executeUpdate("DELETE FROM EmployeesInShifts" +
+            stat.executeUpdate("DELETE FROM EmployeesInShifts " +
                     "WHERE ShiftID="+shift.getID());
             stat.close();
             insertEmployeesOfShifts(shift);
@@ -735,7 +746,7 @@ public class SQLiteDAL implements IDAL{
         try{
             stat = db.createStatement();
             ResultSet set = stat.executeQuery("SELECT ID FROM Shifts " +
-                    "WHERE Date='"+d.format(formatterDate)+"' AND StartTime='"+startTime.format(formatterTime)+"'" );
+                    "WHERE Date='"+d.format(formatterDate)+"' AND StartTime='"+startTime.format(formatterTime)+"'");
             int id = set.getInt("ID");
             set.close();
             stat.close();

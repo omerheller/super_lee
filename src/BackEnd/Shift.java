@@ -31,7 +31,6 @@ public class Shift {
         this.manager = manager;
         this.roles = roles;
         this.amountOfRoles = amountOfRoles;
-
     }
 
     public int getID(){
@@ -66,6 +65,27 @@ public class Shift {
         return amountOfRoles;
     }
 
+    public void setManager(Employee manager) {
+        this.manager = manager;
+    }
+
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public void setRoles(Vector<Pair> roles) {
+        this.roles = roles;
+    }
+
+    public void setAmountOfRoles(HashMap<Integer, Integer> amountOfRoles) {
+        this.amountOfRoles = amountOfRoles;
+    }
+
+
     public void addRole(Role role){
         roles.add(new Pair(role,null));
     }
@@ -99,6 +119,4 @@ public class Shift {
             System.out.println(pair.getEmployee().getFirstName()+" "+pair.getEmployee().getLastName());
         }
     }
-
-
 }

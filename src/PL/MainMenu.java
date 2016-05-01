@@ -1,10 +1,4 @@
 package PL;
-
-import print.Printer;
-import print.Printer.Types;
-import print.color.ColoredPrinter;
-import print.color.Ansi.*;
-import print.exception.InvalidArgumentsException;
 import java.util.Scanner;
 
 /**
@@ -23,7 +17,6 @@ public class MainMenu {
     public static void main(String[] args){
         Scanner sc = new Scanner(System.in);
         header();
-
         int i= 1;
         while(i!=0) {
             System.out.println(ANSI_BOLD+"Please choose desired menu:"+ANSI_RESET);

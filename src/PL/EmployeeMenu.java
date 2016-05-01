@@ -122,7 +122,7 @@ public class EmployeeMenu {
             if (roleChosen==0){
                 finishedRoles = true;
             }
-            else if(roleChosen>0 && roleChosen<=rolesDictionary.size()){
+            else if(rolesDictionary.containsKey(roleChosen)){ //make sure input is valid
                 roles.add(rolesDictionary.get(roleChosen));
                 System.out.println(rolesDictionary.get(roleChosen).getName() + " added." );
             }
@@ -156,12 +156,18 @@ public class EmployeeMenu {
             }
         }
 
-        bl_impl.insertEmployee(fName, lName, ID, roles, date, contract, bankAcct, avail);
+        boolean result = bl_impl.insertEmployee(fName, lName, ID, roles, date, contract, bankAcct, avail);
+        if(result){
+            System.out.println("Employee added successfully!");
+        }
+        else{
+            System.out.println("Employee failed to add");
+        }
     }
 
     private static void editEmployee(){
         Vector<Employee> employees = bl_impl.getEmployees();
-        boolean switchCase=false, finishedRoles = false;
+        boolean switchCase=false, finishedRoles = false, result;
         int[][] avail = new int[2][7];
         Vector<Role> roles = new Vector<Role>();
         String fName, lName, bankAcct, contract;
@@ -329,11 +335,23 @@ public class EmployeeMenu {
                         }
                     }
 
-                    bl_impl.updateEmployee(emp.getFirstName(), emp.getLastName(), emp.getId(), emp.getRoles(), LocalDate.parse(emp.getDateOfHire(), formatter), emp.getContract(), emp.getBankAcct(), emp.getAvailability());
+                    result = bl_impl.updateEmployee(emp.getFirstName(), emp.getLastName(), emp.getId(), emp.getRoles(), LocalDate.parse(emp.getDateOfHire(), formatter), emp.getContract(), emp.getBankAcct(), emp.getAvailability());
+                    if(result){
+                        System.out.println("Employee successfully edited");
+                    }
+                    else{
+                        System.out.println("Employee failed to edit");
+                    }
                     switchCase = true;
                     break;
                 case 5:
-                    bl_impl.deleteEmployee(emp);
+                    result = bl_impl.deleteEmployee(emp);
+                    if(result){
+                        System.out.println("Employee successfully delete");
+                    }
+                    else{
+                        System.out.println("Employee failed to delete");
+                    }
                     switchCase = true;
                     break;
                 default:
@@ -379,11 +397,23 @@ public class EmployeeMenu {
                     //edit role
                     System.out.println("Insert new name:");
                     newName = sc.next();
-                    bl_impl.updateRole(rolesDictionary.get(roleChosen).getID(), newName);
+                    boolean result= bl_impl.updateRole(rolesDictionary.get(roleChosen).getID(), newName);
+                    if(result){
+                        System.out.println("Role successfully edited");
+                    }
+                    else{
+                        System.out.println("Role failed to edit");
+                    }
                     break;
                 case 1:
                     //delete role
-                    bl_impl.deleteRole(rolesDictionary.get(roleChosen));
+                    result = bl_impl.deleteRole(rolesDictionary.get(roleChosen));
+                    if(result){
+                        System.out.println("Role successfully deleted");
+                    }
+                    else{
+                        System.out.println("Role failed to delete");
+                    }
                     break;
                 case -1:
                     System.out.println("Illegal Input:(");
