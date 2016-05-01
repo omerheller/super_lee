@@ -149,14 +149,6 @@ public class ShiftMenu {
             manager = bl_impl.getEmployee(idOfEmpChosen);
         }
 
-        //remove manager from avail employees
-        int empCounter=0; //use counter inorder to know which index in the vector to remove
-        /*for(Employee emp : availableEmployees){
-            if(emp.getId() == idOfEmpChosen)
-                availableEmployees.remove(empCounter);
-            empCounter++;
-        }*/
-
         //remove all the managers from the available employees vector
         for(int f=0;availableEmployeesBasedOnRole.size()>0;f++){
             availableEmployeesBasedOnRole.remove(0);
@@ -194,7 +186,7 @@ public class ShiftMenu {
                 //get available employees based on ROLE!!!!!!!!
                 for (Employee emp : availableEmployees) {
                     for (Role empRole : emp.getRoles()) {
-                        if (empRole.getID() == r.getID()) {
+                        if (empRole.getID() == r.getID() && emp.getId() != manager.getId()) {
                             availableEmployeesBasedOnRole.add(emp);
                         }
                     }
@@ -261,6 +253,14 @@ public class ShiftMenu {
                     counter++;
                 }
                 counter=0;
+
+                for(int e=0;e<availableEmployeesBasedOnRole.size();e++){
+                    availableEmployeesBasedOnRole.remove(0);
+                }
+
+                for(int e=0;e<availableEmployees.size();e++){
+                    availableEmployees.remove(0);
+                }
             }
         }
 
@@ -428,18 +428,6 @@ public class ShiftMenu {
                             shift.setManager(bl_impl.getEmployee(idOfEmpChosen));
                         }
 
-                    /*remove manager from avail employees
-                    int empCounter=0; //use counter inorder to know which index in the vector to remove
-                    for(Employee emp : availableEmployees){
-                        if(emp.getId() == idOfEmpChosen)
-                            availableEmployees.remove(empCounter);
-                        empCounter++;
-                    }
-
-                    //remove all the managers from the available employees vector
-                    for(int f=0;availableEmployeesBasedOnRole.size()>0;f++){
-                        availableEmployeesBasedOnRole.remove(0);
-                    }*/
                         //END GET MANAGER
                         switchCase=true;
                         break;
@@ -485,17 +473,27 @@ public class ShiftMenu {
                         //fill in vector of available employees for shift
                         availableEmployees = bl_impl.getAvailableEmployees(shiftAvail);
                         /*list all managers in store that are available on this day and this shift*/
+                        boolean flag = false;
                         for (Employee emp : availableEmployees) {
-                            for (Role empRole : emp.getRoles()) {
-                                if (empRole.getID() == emptyRoles.get(choice)) { //get role ID at choice inserted
-                                    availableEmployeesBasedOnRole.add(emp);
+                            for (Pair p : shiftRoles) {
+                                if (p.getEmployee().getId() == emp.getId() || emp.getId() == shift.getManager().getId()) {
+                                    flag = true;
                                 }
+                            }
+
+                            if (!flag) {
+                                for (Role empRole : emp.getRoles()) {
+                                    if (empRole.getID() == emptyRoles.get(choice)) { //get role ID at choice inserted
+                                        availableEmployeesBasedOnRole.add(emp);
+                                    }
+                                }
+                                flag = false;
                             }
                         }
 
                         for (Employee emp : availableEmployeesBasedOnRole) {
                             for(Pair p : shiftRoles){
-                                if (emp.getId() == p.getEmployee().getId())
+                                if (emp.getId() == p.getEmployee().getId() || emp.getId() == shift.getManager().getId())
                                     found = true;
                             }
                             if(!found){
@@ -509,6 +507,11 @@ public class ShiftMenu {
                             //insert into pair
                             shiftRoles.add(new Pair(bl_impl.getRole(emptyRoles.get(choice)), bl_impl.getEmployee(empID)));
                         }
+
+                        for(int e=0; e<availableEmployeesBasedOnRole.size();e++){
+                            availableEmployeesBasedOnRole.remove(0);
+                        }
+
 
                         switchCase=true;
                         break;
