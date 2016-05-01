@@ -34,6 +34,7 @@ public interface IDAL {
     Role getRole(int id);
     Vector<Role> getRoles();
     Vector<Employee> getEmployees();
+    boolean idExists(int id);
     int shiftID();
     int roleID();
     Vector<Employee> getAvailableEmployees(int[][] avail);

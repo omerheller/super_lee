@@ -16,6 +16,8 @@ public class SQLiteDAL implements IDAL{
     private Statement stat;
     private static DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ENGLISH);
     private static DateTimeFormatter formatterTime = DateTimeFormatter.ofPattern("HH:mm", Locale.ENGLISH);
+    private String[][] days = new String[2][7];
+
     public SQLiteDAL(){
         dataSource = new SQLiteDataSource();
         connected();
@@ -26,6 +28,15 @@ public class SQLiteDAL implements IDAL{
         catch (Exception e){
             System.out.println(e);
         }
+
+                /*initialize days strings*/
+        days[0][0]="SundayM"; days[1][0]="SundayE";
+        days[0][1]="MondayM"; days[1][1]="MondayE";
+        days[0][2]="TuesdayM"; days[1][2]="TuesdayE";
+        days[0][3]="WednesdayM"; days[1][3]="WednesdayE";
+        days[0][4]="ThursdayM"; days[1][4]="ThursdayE";
+        days[0][5]="FridayM"; days[1][5]="FridayE";
+        days[0][6]="SaturdayM"; days[1][6]="SaturdayE";
     }
     /*
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +82,7 @@ public class SQLiteDAL implements IDAL{
     public boolean updateRole(Role role, String name) {
         try{
             String sql = "UPDATE Roles " +
-                    "SET Name="+role.getName()+" " +
+                    "SET Name='"+role.getName()+"' "+
                     "WHERE ID="+role.getID();
             stat = db.createStatement();
             int rows = stat.executeUpdate(sql);
@@ -116,7 +127,7 @@ public class SQLiteDAL implements IDAL{
 */
     @Override
     public Day getDay(LocalDate d) {
-        ResultSet set = getListByID("Days","Date",d.toString());
+        ResultSet set = getListByID("Days","Date","'"+d.format(formatterDate)+"'");
         try{
             int morningShiftID = set.getInt("MorningShift");
             int eveningShiftID = set.getInt("EveningShift");
@@ -127,6 +138,7 @@ public class SQLiteDAL implements IDAL{
             return new Day(morningShift,eveningShift,d);
         }
         catch(SQLException e){
+            //System.out.println(e);
             return null;
         }
 
@@ -138,8 +150,20 @@ public class SQLiteDAL implements IDAL{
             String sql = "INSERT INTO Days VALUES (?,?,?,?)";
             PreparedStatement preStat = db.prepareStatement(sql);
             preStat.setString(1,day.getDate());
-            preStat.setInt(2,day.getMorningShift().getID());
-            preStat.setInt(3,day.getEveningShift().getID());
+            if(day.getMorningShift()!=null){
+                preStat.setInt(2, day.getMorningShift().getID());
+            }
+            else{
+                preStat.setInt(2, -1);
+            }
+
+            if(day.getEveningShift()!=null){
+                preStat.setInt(3, day.getEveningShift().getID());
+            }
+            else{
+                preStat.setInt(3, -1);
+            }
+
             preStat.setInt(4,0);
             int rows = preStat.executeUpdate();
             preStat.close();
@@ -214,7 +238,7 @@ public class SQLiteDAL implements IDAL{
     @Override
     public Shift getShift(int id) {
         String value = Integer.toString(id);
-        ResultSet set = getListByID("Shift","ID",value);
+        ResultSet set = getListByID("Shifts","ID",value);
         try{
             int duration = set.getInt("Duration");
             LocalTime startTime = LocalTime.parse(set.getString("StartTime"),formatterTime);
@@ -418,11 +442,10 @@ public class SQLiteDAL implements IDAL{
         int[][] array = new int[2][7];
         try {
             ResultSet set = getListByID("EmployeeAvailability", "EmployeeID", Integer.toString(id));
-            int counter = 2;
+            set.next();
             for(int i=0;i<7;i++){
                 for(int j=0;j<2;j++){
-                    array[j][i] = set.getInt(counter);
-                    counter++;
+                    array[j][i] = set.getInt(days[j][i]);
                 }
             }
             set.close();
@@ -651,7 +674,30 @@ public class SQLiteDAL implements IDAL{
 
     @Override
     public Vector<Employee> getEmployees() {
-        return null;
+        Vector<Employee> employees = new Vector<>();
+        Vector<Integer> ids = new Vector<>();
+        try{
+            ResultSet set = getListByID("Employees",null,null);
+            while(set.next()){
+                ids.add(set.getInt("ID"));
+            }
+            set.close();
+            stat.close();
+            for(Integer id : ids){
+                employees.add(getEmployee(id));
+            }
+
+        } catch (SQLException e){
+
+        }
+        return employees;
+
+    }
+
+    @Override
+    public boolean idExists(int id) {
+        Employee emp = getEmployee(id);
+        return emp!=null;
     }
 
     private ResultSet getListByID(String table,String attribute,String value){
@@ -672,15 +718,7 @@ public class SQLiteDAL implements IDAL{
 
     public Vector<Employee> getAvailableEmployees(int[][] avail){
         Vector<Employee> employees = new Vector<>();
-        String[][] days = new String[2][7];
-                /*initialize days strings*/
-        days[0][0]="SundayM"; days[1][0]="SundayE";
-        days[0][1]="MondayM"; days[1][1]="MondayE";
-        days[0][2]="TuesdayM"; days[1][2]="TuesdayE";
-        days[0][3]="WednesdayM"; days[1][3]="WednesdayE";
-        days[0][4]="ThursdayM"; days[1][4]="ThursdayE";
-        days[0][5]="FridayM"; days[1][5]="FridayE";
-        days[0][6]="SaturdayM"; days[1][6]="SaturdayE";
+
         String attribute = days[avail[0][0]][avail[0][1]];
         try {
             stat = db.createStatement();
@@ -709,7 +747,7 @@ public class SQLiteDAL implements IDAL{
         try{
             stat = db.createStatement();
             ResultSet set = stat.executeQuery("SELECT ID FROM Shifts " +
-                    "WHERE Date="+d+" AND StartTime="+startTime );
+                    "WHERE Date='"+d.format(formatterDate)+"' AND StartTime='"+startTime.format(formatterTime)+"'");
             int id = set.getInt("ID");
             set.close();
             stat.close();

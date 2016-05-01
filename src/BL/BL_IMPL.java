@@ -53,8 +53,9 @@ public class BL_IMPL implements IBL {
     }
 
     @Override
-    public boolean updateShift(LocalTime startTime, LocalTime endTime, int duration, LocalDate date, Employee manager, Vector<Pair> roles, HashMap<Integer, Integer> amountOfRoles) {
-        return false;
+    public boolean updateShift(int ID, LocalTime startTime, LocalTime endTime, int duration, LocalDate date, Employee manager, Vector<Pair> roles, HashMap<Integer, Integer> amountOfRoles) {
+        Shift newShift = new Shift(ID, startTime, endTime, duration, date, manager, roles, amountOfRoles);
+        return SQLDAL.insert(newShift);
     }
 
     @Override
@@ -64,12 +65,12 @@ public class BL_IMPL implements IBL {
 
     @Override
     public boolean insertDay(Day d) {
-        return false;
+        return SQLDAL.insert(d);
     }
 
     @Override
     public boolean updateDay(Day d) {
-        return false;
+        return SQLDAL.update(d);
     }
 
     @Override
@@ -104,13 +105,13 @@ public class BL_IMPL implements IBL {
     }
 
     @Override
-    public Shift getShift(int id) {
-        return SQLDAL.getShift(id);
+    public Shift getShift(LocalDate d, LocalTime startTime) {
+        return SQLDAL.getShift(d,startTime);
     }
 
     @Override
-    public Shift getShift(LocalDate d, LocalTime startTime) {
-        return null;
+    public Shift getShift(int id) {
+        return SQLDAL.getShift(id);
     }
 
     @Override
@@ -131,6 +132,11 @@ public class BL_IMPL implements IBL {
     @Override
     public Vector<Employee> getEmployees() {
         return SQLDAL.getEmployees();
+    }
+
+    @Override
+    public boolean idExists(int id) {
+        return SQLDAL.idExists(id);
     }
 
     @Override

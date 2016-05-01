@@ -31,12 +31,11 @@ public class EmployeeMenu {
         days[0][4]="Thursday Morning:"; days[1][4]="Thursday Evening:";
         days[0][5]="Friday Morning:"; days[1][5]="Friday Evening:";
         days[0][6]="Saturday Morning:"; days[1][6]="Saturday Evening:";
-
-        System.out.println("Welcome to Employee/Role menu");
-        System.out.println("1. Add Employee");
-        System.out.println("2. Edit/Delete Employee");
-        System.out.println("3. Add Role");
-        System.out.println("4. Edit/Delete Role");
+        System.out.println(MainMenu.ANSI_BOLD+"Welcome to Employee/Role menu"+MainMenu.ANSI_RESET);
+        System.out.println(MainMenu.ANSI_BOLD+"1"+MainMenu.ANSI_RESET+". Add Employee");
+        System.out.println(MainMenu.ANSI_BOLD+"2"+MainMenu.ANSI_RESET+". Edit/Delete Employee");
+        System.out.println(MainMenu.ANSI_BOLD+"3"+MainMenu.ANSI_RESET+". Add Role");
+        System.out.println(MainMenu.ANSI_BOLD+"4"+MainMenu.ANSI_RESET+". Edit/Delete Role");
 
         while(!switchCase) {
             int i = sc.nextInt();
@@ -76,8 +75,16 @@ public class EmployeeMenu {
         int ID, i=0, x=0, y=0, z=1, roleChosen; //use x,y for the availabilty array.. use z for rolesDictionary movement
 
         System.out.println("Insert Employee's ID:");
-        ID = sc.nextInt();
-
+        while(true) {
+            ID = sc.nextInt();
+            if (bl_impl.idExists(ID)){
+                System.out.println(MainMenu.ANSI_BOLD+MainMenu.ANSI_RED+"ID EXISTS IN DB"+MainMenu.ANSI_RESET);
+                System.out.println("Please try again");
+            }
+            else{
+                break;
+            }
+        }
         System.out.println("Insert Employee's first name:");
         fName = sc.next();
 
@@ -85,8 +92,16 @@ public class EmployeeMenu {
         lName = sc.next();
 
         System.out.println("Insert Employee's date of hire (dd/MM/yyyy):");
-        LocalDate date = LocalDate.parse(sc.next(), formatter);
-
+        LocalDate date;
+        while(true) {
+            try {
+                date = LocalDate.parse(sc.next(), formatter);
+                break;
+            } catch (Exception e) {
+                System.out.println(MainMenu.ANSI_BOLD+MainMenu.ANSI_RED+"BAD INPUT"+MainMenu.ANSI_RESET);
+                System.out.println("Please try again.");
+            }
+        }
         System.out.println("Insert Employee's contract:");
         contract = sc.next();
 
@@ -107,7 +122,7 @@ public class EmployeeMenu {
             if (roleChosen==0){
                 finishedRoles = true;
             }
-            else if(roleChosen>0 && roleChosen<=rolesDictionary.size()){
+            else if(rolesDictionary.containsKey(roleChosen)){ //make sure input is valid
                 roles.add(rolesDictionary.get(roleChosen));
                 System.out.println(rolesDictionary.get(roleChosen).getName() + " added." );
             }
@@ -141,15 +156,25 @@ public class EmployeeMenu {
             }
         }
 
-        bl_impl.insertEmployee(fName, lName, ID, roles, date, contract, bankAcct, avail);
+        boolean result = bl_impl.insertEmployee(fName, lName, ID, roles, date, contract, bankAcct, avail);
+        if(result){
+            System.out.println("Employee added successfully!");
+        }
+        else{
+            System.out.println("Employee failed to add");
+        }
     }
 
     private static void editEmployee(){
-        boolean switchCase=false, finishedRoles = false;
+        Vector<Employee> employees = bl_impl.getEmployees();
+        boolean switchCase=false, finishedRoles = false, result;
         int[][] avail = new int[2][7];
         Vector<Role> roles = new Vector<Role>();
         String fName, lName, bankAcct, contract;
         int ID, i=0, x=0, y=0, z=1, roleChosen, empID; //use x,y for the availabilty array.. use z for rolesDictionary movement
+        for(Employee emp : employees){
+            System.out.println(emp.getId()+" "+emp.getFirstName()+" "+emp.getLastName());
+        }
 
         System.out.println("Please insert employee's ID:");
         empID = sc.nextInt();
@@ -176,37 +201,48 @@ public class EmployeeMenu {
             i = sc.nextInt();
             switch (i) {
                 case 1:
-                    System.out.println("Insert Employee's first name:");
+                    System.out.println("Editing Personal Info. Press -1 to keep current value");
+                    System.out.println("Insert Employee's first name: (Current: "+emp.getFirstName()+" )");
                     fName = sc.next();
-                    if(fName==""){
+                    if(fName.equals("-1")){
                         fName = emp.getFirstName();
                     }
 
-                    System.out.println("Insert Employee's last name:");
+                    System.out.println("Insert Employee's last name: (Current: "+emp.getLastName()+" )");
                     lName = sc.next();
-                    if(lName==""){
+                    if(lName.equals("-1")){
                         lName = emp.getLastName();
                     }
 
-                    System.out.println("Insert Employee's date of hire (dd/MM/yyyy):");
-                    String inputDate = sc.next();
+                    System.out.println("Insert Employee's date of hire (dd/MM/yyyy): (Current: "+emp.getDateOfHire()+" )");
+
                     LocalDate date;
-                    if(inputDate==""){
+                    while(true) {
+                        String inputDate = sc.next();
+                    if(inputDate.equals("-1")){
                         date = LocalDate.parse(emp.getDateOfHire(), formatter);
+                        break;
                     }
                     else{
-                        date = LocalDate.parse(sc.next(), formatter);
+                            try {
+                                date = LocalDate.parse(inputDate, formatter);
+                                break;
+                            } catch (Exception e) {
+                                System.out.println(MainMenu.ANSI_BOLD+MainMenu.ANSI_RED+"BAD INPUT"+MainMenu.ANSI_RESET);
+                                System.out.println("Please try again.");
+                            }
+                        }
                     }
 
-                    System.out.println("Insert Employee's contract:");
+                    System.out.println("Insert Employee's contract: (Current: "+emp.getContract()+" )");
                     contract = sc.next();
-                    if(contract==""){
+                    if(contract.equals("-1")){
                         contract = emp.getContract();
                     }
 
-                    System.out.println("Insert Employee's bank account:");
+                    System.out.println("Insert Employee's bank account: (Current: "+emp.getBankAcct()+" )");
                     bankAcct= sc.next();
-                    if(bankAcct==""){
+                    if(bankAcct.equals("-1")){
                         bankAcct = emp.getBankAcct();
                     }
 
@@ -218,7 +254,7 @@ public class EmployeeMenu {
                     for(x=0;x<7;x++) {
                         for (y=0; y < 2; y++) {
                             switchCase=false;
-                            System.out.println(days[y][x]);
+                            System.out.println(days[y][x]+" (Current: "+emp.getAvailability()[y][x]+")");
                             while (!switchCase) {
                                 i = sc.nextInt();
                                 switch(i){
@@ -228,6 +264,10 @@ public class EmployeeMenu {
                                         break;
                                     case 1:
                                         avail[y][x] = 1;
+                                        switchCase = true;
+                                        break;
+                                    case -1:
+                                        avail[y][x] = emp.getAvailability()[y][x];
                                         switchCase = true;
                                         break;
                                     default:
@@ -295,11 +335,23 @@ public class EmployeeMenu {
                         }
                     }
 
-                    bl_impl.updateEmployee(emp.getFirstName(), emp.getLastName(), emp.getId(), emp.getRoles(), LocalDate.parse(emp.getDateOfHire(), formatter), emp.getContract(), emp.getBankAcct(), emp.getAvailability());
+                    result = bl_impl.updateEmployee(emp.getFirstName(), emp.getLastName(), emp.getId(), emp.getRoles(), LocalDate.parse(emp.getDateOfHire(), formatter), emp.getContract(), emp.getBankAcct(), emp.getAvailability());
+                    if(result){
+                        System.out.println("Employee successfully edited");
+                    }
+                    else{
+                        System.out.println("Employee failed to edit");
+                    }
                     switchCase = true;
                     break;
                 case 5:
-                    bl_impl.deleteEmployee(emp);
+                    result = bl_impl.deleteEmployee(emp);
+                    if(result){
+                        System.out.println("Employee successfully delete");
+                    }
+                    else{
+                        System.out.println("Employee failed to delete");
+                    }
                     switchCase = true;
                     break;
                 default:
@@ -334,17 +386,37 @@ public class EmployeeMenu {
 
         if(rolesDictionary.containsKey(roleChosen)){ //make sure choice is valid
             System.out.println("To delete role press 1, to edit press 0:");
-            delete = sc.nextInt();
+            try {
+                delete = sc.nextInt();
+            }catch (InputMismatchException e){
+                delete = -1;
+            }
 
             switch(delete){
                 case 0:
                     //edit role
                     System.out.println("Insert new name:");
                     newName = sc.next();
-                    bl_impl.updateRole(rolesDictionary.get(roleChosen).getID(), newName);
+                    boolean result= bl_impl.updateRole(rolesDictionary.get(roleChosen).getID(), newName);
+                    if(result){
+                        System.out.println("Role successfully edited");
+                    }
+                    else{
+                        System.out.println("Role failed to edit");
+                    }
+                    break;
                 case 1:
                     //delete role
-                    bl_impl.deleteRole(rolesDictionary.get(roleChosen));
+                    result = bl_impl.deleteRole(rolesDictionary.get(roleChosen));
+                    if(result){
+                        System.out.println("Role successfully deleted");
+                    }
+                    else{
+                        System.out.println("Role failed to delete");
+                    }
+                    break;
+                case -1:
+                    System.out.println("Illegal Input:(");
             }
             //update roles dictionary
             fillRoles();
@@ -356,6 +428,7 @@ public class EmployeeMenu {
 
     private static void fillRoles(){
         //fill in the rolesDicationary
+        rolesDictionary.clear();
         if(bl_impl.getRoles().size()>0) {
             for (Role r : bl_impl.getRoles()) {
                 rolesDictionary.put(r.getID(), r);
