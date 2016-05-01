@@ -110,7 +110,7 @@ public class BL_IMPL implements IBL {
 
     @Override
     public Shift getShift(LocalDate d, LocalTime startTime) {
-        return null;
+        return SQLDAL.getShift(d,startTime);
     }
 
     @Override

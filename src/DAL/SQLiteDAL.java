@@ -735,7 +735,7 @@ public class SQLiteDAL implements IDAL{
         try{
             stat = db.createStatement();
             ResultSet set = stat.executeQuery("SELECT ID FROM Shifts " +
-                    "WHERE Date="+d.format(formatterDate)+" AND StartTime="+startTime.format(formatterTime) );
+                    "WHERE Date='"+d.format(formatterDate)+"' AND StartTime='"+startTime.format(formatterTime)+"'" );
             int id = set.getInt("ID");
             set.close();
             stat.close();

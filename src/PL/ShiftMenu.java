@@ -31,7 +31,7 @@ public class ShiftMenu {
                 //lineIndex++;
             }
         }
-
+        System.out.println(bl_impl.getShift(LocalDate.parse("23/05/2016",dateFormatter),LocalTime.parse("12:00",timeFormatter)));
         System.out.println("Welcome to Shift menu");
         System.out.println("1. Add Shift");
         System.out.println("2. Edit/Delete Shift");
