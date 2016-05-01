@@ -19,12 +19,18 @@ public class BL_IMPL implements IBL {
     @Override
     public boolean insertEmployee(String firstName, String lastName, int id, Vector<Role> roles, LocalDate dateOfHire, String contract, String bankAcct, int[][] ava) {
         /*check validity*/
+        if(SQLDAL.getEmployee(id)!=null) {
 
-        //create emp
-        Employee emp = new Employee(firstName, lastName, id, roles, dateOfHire, contract, bankAcct, ava);
+            //create emp
+            Employee emp = new Employee(firstName, lastName, id, roles, dateOfHire, contract, bankAcct, ava);
 
-        //insert into database
-        return SQLDAL.insert(emp);
+            //insert into database
+            return SQLDAL.insert(emp);
+        }
+        else{
+            System.out.println("Employee already exists with that ID!");
+            return false;
+        }
     }
 
     @Override
@@ -41,10 +47,20 @@ public class BL_IMPL implements IBL {
     @Override
     public boolean insertShift(LocalTime startTime, LocalTime endTime, int duration, LocalDate date, Employee manager, Vector<Pair> roles, HashMap<Integer,Integer> amountOfRoles){
         /*check that there is no shift in this date!*/
-        boolean valid = true;
-        if(!valid){
-            System.out.println("Shift already added for this date");
-            return false;
+        Day d = SQLDAL.getDay(date);
+        if(d!=null) {
+            //check shifts of the day
+            if ((d.getMorningShift() != null && startTime.getHour() < 12) || (d.getEveningShift() != null && startTime.getHour() >= 12)) {
+                if (startTime.getHour() < 12) {
+                    System.out.println("Morning shift already exists for this day!");
+                } else {
+                    System.out.println("Evening shift already exists for this day!");
+                }
+                return false;
+            } else {
+                Shift newShift = new Shift(SQLDAL.shiftID(), startTime, endTime, duration, date, manager, roles, amountOfRoles);
+                return SQLDAL.insert(newShift);
+            }
         }
         else{
             Shift newShift = new Shift(SQLDAL.shiftID(), startTime, endTime, duration, date, manager, roles, amountOfRoles);

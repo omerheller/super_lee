@@ -278,29 +278,29 @@ public class ShiftMenu {
         /*insert shift into day*/
         //check if day already exists
         Day newDay = bl_impl.getDay(date);
-        if(newDay==null) { //day doesn't exist, which means that this is the first shift created for this date so we will create the day
-            if (startTime.getHour() < 12) {
-                //morning shift
-                newDay = new Day(bl_impl.getShift(date, startTime), null, date);
-                result = bl_impl.insertDay(newDay);
+        if(result) {
+            if (newDay == null) { //day doesn't exist, which means that this is the first shift created for this date so we will create the day
+                if (startTime.getHour() < 12) {
+                    //morning shift
+                    newDay = new Day(bl_impl.getShift(date, startTime), null, date);
+                    result = bl_impl.insertDay(newDay);
+                } else {
+                    //evening shift
+                    newDay = new Day(null, bl_impl.getShift(date, startTime), date);
+                    result = bl_impl.insertDay(newDay);
+                }
             }
+            //day exists so we will edit it based on shift created now
             else {
-                //evening shift
-                newDay = new Day(null, bl_impl.getShift(date, startTime), date);
-                result = bl_impl.insertDay(newDay);
-            }
-        }
-        //day exists so we will edit it based on shift created now
-        else{
-            if (startTime.getHour() < 12) {
-                //morning shift
-                newDay.setMorningShift(bl_impl.getShift(date, startTime));
-                result = bl_impl.updateDay(newDay);
-            }
-            else {
-                //evening shift
-                newDay.setEveningShift(bl_impl.getShift(date, startTime));
-                result = bl_impl.updateDay(newDay);
+                if (startTime.getHour() < 12) {
+                    //morning shift
+                    newDay.setMorningShift(bl_impl.getShift(date, startTime));
+                    result = bl_impl.updateDay(newDay);
+                } else {
+                    //evening shift
+                    newDay.setEveningShift(bl_impl.getShift(date, startTime));
+                    result = bl_impl.updateDay(newDay);
+                }
             }
         }
 
@@ -565,6 +565,7 @@ public class ShiftMenu {
                         for(Pair p : shiftRoles){
                             System.out.println(lineCounter +") Role: "+p.getRole().getName() + " Employee: "+p.getEmployee().getFirstName() + " "+ p.getEmployee().getLastName());
                             map.put(lineCounter, p);
+                            lineCounter++;
                         }
 
                         int remEmp = sc.nextInt();
