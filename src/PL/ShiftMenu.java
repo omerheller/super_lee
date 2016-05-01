@@ -2,6 +2,7 @@ package PL;
 
 import BL.*;
 import BackEnd.*;
+import sun.rmi.server.InactiveGroupException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -250,6 +251,10 @@ public class ShiftMenu {
                         }
                     }
                     else {
+                        while(counter<numOfEmployees){
+                            roles.add(new Pair(r, null));
+                            counter++;
+                        }
                         finished = true;
                     }
 
@@ -355,9 +360,6 @@ public class ShiftMenu {
             //calculate duration
             duration=endTime.getHour()-startTime.getHour();
 
-            //change employer
-            System.out.println("Please choose new manager, to keep the same one press 0:");
-
             //get day according to calendar date
             int day = date.getDayOfWeek().getValue();
 
@@ -386,57 +388,201 @@ public class ShiftMenu {
                 shiftAvail[0][1] = day;
             }
 
-            //fill in vector of available employees for shift
-            availableEmployees = bl_impl.getAvailableEmployees(shiftAvail);
-            /*list all managers in store that are available on this day and this shift*/
-            for(Employee emp : availableEmployees) {
-                for (Role empRole : emp.getRoles()) {
-                    if (empRole.getID() == 1) {
-                        availableEmployeesBasedOnRole.add(emp);
+            shiftAmountOfRoles = shift.getAmountOfRoles();
+            shiftRoles = shift.getRoles();
+
+            System.out.println("Edit Shift Menu:");
+            System.out.println("1. Change Manager");
+            System.out.println("2. Add to employee to role");
+            System.out.println("3. Add/Change role amount in shift");
+            System.out.println("4. Remove employee from shift");
+
+            boolean switchCase =false;
+            boolean found=false;
+            int i;
+            i=sc.nextInt();
+            while(!switchCase) {
+                switch (i) {
+                    case 1:
+                        //change employer
+                        System.out.println("Please choose new manager:");
+
+                        //fill in vector of available employees for shift
+                        availableEmployees = bl_impl.getAvailableEmployees(shiftAvail);
+                    /*list all managers in store that are available on this day and this shift*/
+                        for (Employee emp : availableEmployees) {
+                            for (Role empRole : emp.getRoles()) {
+                                if (empRole.getID() == 1) {
+                                    availableEmployeesBasedOnRole.add(emp);
+                                }
+                            }
+                        }
+
+                        for (Employee emp : availableEmployeesBasedOnRole) {
+                            if (emp.getId() != shift.getManager().getId())
+                                System.out.println("ID: " + emp.getId() + " Name: " + emp.getFirstName() + " " + emp.getLastName());
+                        }
+
+                        idOfEmpChosen = sc.nextInt();
+                        if (idOfEmpChosen != 0) { //chose new manager
+                            shift.setManager(bl_impl.getEmployee(idOfEmpChosen));
+                        }
+
+                    /*remove manager from avail employees
+                    int empCounter=0; //use counter inorder to know which index in the vector to remove
+                    for(Employee emp : availableEmployees){
+                        if(emp.getId() == idOfEmpChosen)
+                            availableEmployees.remove(empCounter);
+                        empCounter++;
                     }
+
+                    //remove all the managers from the available employees vector
+                    for(int f=0;availableEmployeesBasedOnRole.size()>0;f++){
+                        availableEmployeesBasedOnRole.remove(0);
+                    }*/
+                        //END GET MANAGER
+                        switchCase=true;
+                        break;
+                    case 2:
+                        HashMap<Integer, Integer> emptyRoles = new HashMap<Integer, Integer>();
+                        int counter = 0, choice, empID;
+                        int numOfEmptyRoles=0;
+
+                        //add employees to roles, display all the null pairs
+                        System.out.println("Empty roles:");
+
+                        //count number of empty roles
+                        int lineSpace=0;
+                        for(Integer z : shiftAmountOfRoles.keySet()){
+                            Role r = bl_impl.getRole(z);
+                            numOfEmptyRoles = shiftAmountOfRoles.get(z);
+
+
+                            for (Pair p : shiftRoles) {
+                                if (p.getRole().getID() == r.getID()) {
+                                    counter++;
+                                }
+                            }
+
+                            numOfEmptyRoles = numOfEmptyRoles-counter;
+
+                            if(numOfEmptyRoles>0){
+                                System.out.println(lineSpace+": "+ r.getName());
+                                emptyRoles.put(lineSpace, r.getID());
+                            }
+                            lineSpace++;
+                            counter=0;
+                        }
+
+                        choice = sc.nextInt();
+
+                        while (!emptyRoles.containsKey(choice)) {
+                            System.out.println("Try again...");
+                            choice = sc.nextInt();
+                        }
+
+                        //show avail employees
+                        //fill in vector of available employees for shift
+                        availableEmployees = bl_impl.getAvailableEmployees(shiftAvail);
+                        /*list all managers in store that are available on this day and this shift*/
+                        for (Employee emp : availableEmployees) {
+                            for (Role empRole : emp.getRoles()) {
+                                if (empRole.getID() == emptyRoles.get(choice)) { //get role ID at choice inserted
+                                    availableEmployeesBasedOnRole.add(emp);
+                                }
+                            }
+                        }
+
+                        for (Employee emp : availableEmployeesBasedOnRole) {
+                            for(Pair p : shiftRoles){
+                                if (emp.getId() == p.getEmployee().getId())
+                                    found = true;
+                            }
+                            if(!found){
+                                System.out.println(emp.getId() + ": "+ emp.getFirstName() + " " + emp.getLastName());
+                            }
+                        }
+
+                        empID = sc.nextInt();
+
+                        if (empID != 0) {
+                            //insert into pair
+                            shiftRoles.add(new Pair(bl_impl.getRole(emptyRoles.get(choice)), bl_impl.getEmployee(empID)));
+                        }
+
+                        switchCase=true;
+                        break;
+
+                    case 3:
+                        //fill in the rolesDicationary
+                        if(bl_impl.getRoles().size()>0) {
+                            for (Role r : bl_impl.getRoles()) {
+                                rolesDictionary.put(r.getID(), r);
+                            }
+                        }
+
+                        for(int f : rolesDictionary.keySet()){
+                            System.out.println(f + ": " + rolesDictionary.get(f).getName());
+                        }
+
+                        choice = sc.nextInt();
+
+                        while(!rolesDictionary.containsKey(choice)){
+                            System.out.println("Try again...");
+                            choice = sc.nextInt();
+                        }
+
+
+                        //check if role is in the shift
+                        for(Pair p: shiftRoles){
+                            if(p.getRole().getID() == choice)
+                                found = true;
+                        }
+
+                        System.out.println("How many employees?");
+                        int amount = sc.nextInt();
+
+                        if(found){
+                            //update the hashtable
+                            shiftAmountOfRoles.replace(choice, amount);
+                        }
+                        else{
+                            //add new roles
+                            shiftAmountOfRoles.put(choice, amount);
+                        }
+                        switchCase=true;
+                        break;
+
+                    case 4:
+                        HashMap<Integer, Pair> map = new HashMap<Integer, Pair>();
+                        //go through all pairs
+                        int lineCounter =0;
+                        System.out.println("Which employee to remove?");
+
+                        for(Pair p : shiftRoles){
+                            System.out.println(lineCounter +") Role: "+p.getRole().getName() + " Employee: "+p.getEmployee().getFirstName() + " "+ p.getEmployee().getLastName());
+                            map.put(lineCounter, p);
+                        }
+
+                        int remEmp = sc.nextInt();
+
+                        while(!map.containsKey(remEmp)){
+                            System.out.println("Try again...");
+                            remEmp = sc.nextInt();
+                        }
+
+                        shiftRoles.remove(map.get(remEmp));
+
+                        switchCase=true;
+                        break;
+
+                    default:
+                        System.out.println("Try again:");
+                        i = sc.nextInt();
                 }
             }
 
-            for(Employee emp: availableEmployeesBasedOnRole){
-                if(emp.getId()!=shift.getManager().getId())
-                System.out.println("ID: "+ emp.getId() +" Name: " + emp.getFirstName() + " " + emp.getLastName());
-            }
-
-            idOfEmpChosen = sc.nextInt();
-            if(idOfEmpChosen!=0){ //chose new manager
-                shift.setManager(bl_impl.getEmployee(idOfEmpChosen));
-            }
-
-            /*remove manager from avail employees
-            int empCounter=0; //use counter inorder to know which index in the vector to remove
-            for(Employee emp : availableEmployees){
-                if(emp.getId() == idOfEmpChosen)
-                    availableEmployees.remove(empCounter);
-                empCounter++;
-            }
-
-            //remove all the managers from the available employees vector
-            for(int f=0;availableEmployeesBasedOnRole.size()>0;f++){
-                availableEmployeesBasedOnRole.remove(0);
-            }*/
-
-            //END GET MANAGER
-
-            //change roles
-            System.out.println("Roles in the shifts:");
-            shiftAmountOfRoles = shift.getAmountOfRoles();
-            for(Integer shiftID : shiftAmountOfRoles.values()){
-                System.out.println("Shift: "+bl_impl.getRole(shiftID).getName()+" Amount: " +shiftAmountOfRoles.get(shiftID));
-            }
-            //change amount of roles
-
-
-
-
-
-
-
-            boolean result = bl_impl.updateShift(shift.getID(), startTime, endTime, duration, date,shift.getManager(), shift.getRoles(), shift.getAmountOfRoles());
+            boolean result = bl_impl.updateShift(shift.getID(), startTime, endTime, duration, date,shift.getManager(), shiftRoles, shiftAmountOfRoles);
             if(result){
                 System.out.println("Shift updated successfuly!");
             }

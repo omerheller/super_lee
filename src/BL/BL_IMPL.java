@@ -55,7 +55,7 @@ public class BL_IMPL implements IBL {
     @Override
     public boolean updateShift(int ID, LocalTime startTime, LocalTime endTime, int duration, LocalDate date, Employee manager, Vector<Pair> roles, HashMap<Integer, Integer> amountOfRoles) {
         Shift newShift = new Shift(ID, startTime, endTime, duration, date, manager, roles, amountOfRoles);
-        return SQLDAL.insert(newShift);
+        return SQLDAL.update(newShift);
     }
 
     @Override

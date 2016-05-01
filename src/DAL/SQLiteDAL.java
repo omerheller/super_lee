@@ -371,7 +371,7 @@ public class SQLiteDAL implements IDAL{
     @Override
     public boolean update(Shift shift) {
         String sql = "UPDATE Shifts " +
-                "SET Date=? , Duration=? , End_Time= ? , Start_Time=?, ManagerID=?" +
+                "SET Date=? , Duration=? , EndTime= ? , StartTime=?, ManagerID=?" +
                 "WHERE ID=?";
         try {
             PreparedStatement preStat = db.prepareStatement(sql);
