@@ -6,6 +6,8 @@ import org.junit.Test;
 import BackEnd.*;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 import static org.junit.Assert.*;
 
@@ -14,6 +16,7 @@ import static org.junit.Assert.*;
  */
 public class SQLiteDALTest {
     private IDAL sqliteDal;
+    private static DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ENGLISH);
     @Before
     public void setUp() throws Exception {
         sqliteDal = new SQLiteDAL();
@@ -49,6 +52,27 @@ public class SQLiteDALTest {
         assertTrue(sqliteDal.delete(new Employee("FirstName","LastName",777,null,LocalDate.now(),"CONTRACT","BANKACC",null)));
     }
 
+    @Test
+    public void insertDay() throws Exception{
+        Day day = new Day(null,null,LocalDate.parse("01/01/2000",formatterDate));
+        sqliteDal.insert(day);
+        assertTrue(sqliteDal.getDay(LocalDate.parse("01/01/2000",formatterDate))!=null);
+    }
+
+    @Test
+    public void getDay() throws Exception{
+        Day day = new Day(null,null,LocalDate.parse("02/01/2000",formatterDate));
+        sqliteDal.insert(day);
+        assertTrue(sqliteDal.getDay(LocalDate.parse("02/01/2000",formatterDate))!=null);
+    }
+
+    @Test
+    public void deleteDay() throws Exception{
+        Day day = new Day(null,null,LocalDate.parse("03/01/2000",formatterDate));
+        sqliteDal.insert(day);
+        assertTrue(sqliteDal.delete(new Day(null,null,LocalDate.parse("03/01/2000",formatterDate))));
+    }
+
 
 
     @Test
@@ -63,6 +87,16 @@ public class SQLiteDALTest {
         Role role = new Role(666,"TEST ROLE");
         sqliteDal.insertRole(role);
         assertEquals(sqliteDal.getRole(666).getName(),"TEST ROLE");
+    }
+
+    @Test
+    public void shiftID() throws Exception{
+        assertEquals(1,sqliteDal.shiftID());
+    }
+
+    @Test
+    public void roleID() throws Exception{
+        assertTrue(sqliteDal.roleID()>2);
     }
 
 }

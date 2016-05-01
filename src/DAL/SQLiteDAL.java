@@ -178,7 +178,7 @@ public class SQLiteDAL implements IDAL{
     public boolean delete(Day day) {
         try{
             stat = db.createStatement();
-            int rows = stat.executeUpdate("UPDATE Days SET Deleted=1 WHERE Date="+day.getDate());
+            int rows = stat.executeUpdate("UPDATE Days SET Deleted=1 WHERE Date='"+day.getDate()+"'");
             stat.close();
             return rows==1;
         }
@@ -516,8 +516,8 @@ public class SQLiteDAL implements IDAL{
             employeeAvailability(emp);
         }
         catch(Exception e){
-            System.out.print("insert employee");
-            System.out.print(e);
+            //System.out.print("insert employee");
+            //System.out.print(e);
             return false;
         }
         return true;
