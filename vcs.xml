@@ -10,8 +10,12 @@
           <option name="url" value="https://github.com/Nivlipetz1/design2.git" />
           <option name="userName" value="" />
         </UrlAndUserName>
+        <UrlAndUserName>
+          <option name="url" value="https://github.com/Nivlipetz1/bgu2.git" />
+          <option name="userName" value="" />
+        </UrlAndUserName>
       </list>
     </option>
-    <option name="cloneParentDir" value="C:\Users\matan\Desktop\transport" />
+    <option name="cloneParentDir" value="C:\Users\matan\Desktop\nitutz2" />
   </component>
 </application>
